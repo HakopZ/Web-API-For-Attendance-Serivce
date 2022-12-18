@@ -3,18 +3,26 @@
     public class GMRSchedule
     {
         public int ID { get; }
-        public List<GMRSession> Classes { get; private set; }
+        public List<GMRClass> Classes { get; private set; }
         public DateTime Date { get; private set; }
         //ALOT MORE THEN JUST THIS
-        public GMRSchedule(List<GMRSession> classes, DateTime date, int id)
+        public GMRSchedule(List<GMRClass> classes, DateTime date, int id)
         {
             Classes = classes;
             Date = date;
             ID = id;
         }
 
-        public GMRSession GetSessionByTime(int timeSlotID) => Classes.Where(x => x.TimeSlotID == timeSlotID).First();
+        public List<GMRClass> GetSessionByTime(int timeSlotID) => Classes.Where(x => x.TimeSlotID == timeSlotID).ToList();
 
-        public GMRSession GetSessionByID(int id) => Classes.Where(x => x.ID == id).First();
+        public (GMRClass, Student) GetClosestClass(string username, DateTime time)
+        {
+            var getClass = Classes.Where(x => x.Students.Exists(s => s.Username == username));
+            var classes = getClass.Where(x => Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
+            var cls = classes.First();
+            var std = cls.Students.Where(x => x.Username == username).First();
+            return (cls, std);
+        }
+
     }
 }

@@ -17,7 +17,7 @@ namespace AttendanceWebAPI.Controllers
             throw new NotImplementedException();
         }
         [HttpGet("Session/GetStatus")]
-        public GMRSession GetStatus()
+        public List<GMRClass> GetStatus()
         {
             throw new NotImplementedException();
         }
@@ -48,13 +48,13 @@ namespace AttendanceWebAPI.Controllers
         
 
         [HttpGet("History/ByID")]
-        public List<AttendanceRecord> GetStudentHistory([FromQuery] StudentInfo body)
+        public IActionResult GetStudentHistory([FromQuery] StudentInfo body)
         {
             throw new NotImplementedException();
         }
 
         [HttpGet("History/ByStudentRecord")]
-        public List<AttendanceRecord> GetStudentHistoryByDate([FromQuery] StudentRecord body)
+        public IActionResult GetStudentHistoryByDate([FromQuery] StudentRecord body)
         {
             throw new NotImplementedException();
         }

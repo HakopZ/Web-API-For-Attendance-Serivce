@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AttendanceWebAPI.Controllers;
+using Microsoft.AspNetCore.Mvc;
 using Test_2.ScheduleSetup;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -9,11 +10,16 @@ namespace Test_2.Controllers
     [ApiController]
     public class MagicController : ControllerBase
     {
-        public static GMRSchedule? Current_Schedule { get; set; }
-        [HttpPost]
+        [HttpPost("MakeSchedule")]
         public void MakeSchedule([FromBody] GMRSchedule schedule)
         {
-            Current_Schedule = schedule;
+            Communicator.Current_Schedule = schedule;
+        }
+
+        [HttpPost("MakeTimeSlotMapper")]
+        public void MakeTimeSlotMapper(Dictionary<int, (DateTime, DateTime)> values)
+        {
+            Communicator.timeSlotMap = values;
         }
 
         //constantly running task that checks for schedule changes
