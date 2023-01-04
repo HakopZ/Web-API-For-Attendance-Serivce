@@ -10,10 +10,10 @@ namespace AttendanceWebAPI.Controllers
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
-        [HttpGet("{stationID}, {classID}, {timeEntered}")]
+        [HttpGet("{stationID}, {username}, {timeEntered}")]
         public async Task<IActionResult> LogIn(int stationID, string username, DateTime timeEntered)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, stationID, timeEntered);
+            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, timeEntered);
             if(session.s == null)
             {
                 return StatusCode(406);
@@ -22,18 +22,17 @@ namespace AttendanceWebAPI.Controllers
                 new SqlParameter("@timeSlotID", session.c.TimeSlotID),
                 new SqlParameter("@TimeEntered", timeEntered),
                 new SqlParameter("@StationID", stationID));
-
+            
             await cmd.ExecuteNonQueryAsync();
             
             return Ok();
         }
 
 
-        [HttpGet("{stationID}, {classID}, {timeExited}")]
-        public void LogOff(int stationID, string firstName, string lastName, DateTime timeExited)
+        [HttpGet("{stationID}, {username}, {timeExited}")]
+        public void LogOff(int stationID, string username, DateTime timeExited)
         {
-            
-            //TODO: Call Log off Stored Procedure
+            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, timeExited);       
         }
 
 
