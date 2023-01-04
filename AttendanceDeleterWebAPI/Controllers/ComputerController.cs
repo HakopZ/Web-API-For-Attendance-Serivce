@@ -13,12 +13,13 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("{stationID}, {username}, {timeEntered}")]
         public async Task<IActionResult> LogIn(int stationID, string username, DateTime timeEntered)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, timeEntered);
+            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeEntered);
             if(session.s == null)
             {
                 return StatusCode(406);
             }
-            var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", new SqlParameter("@StudentID", session.s.ID),
+            var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
+                new SqlParameter("@StudentID", session.s.ID),
                 new SqlParameter("@timeSlotID", session.c.TimeSlotID),
                 new SqlParameter("@TimeEntered", timeEntered),
                 new SqlParameter("@StationID", stationID));
@@ -30,9 +31,24 @@ namespace AttendanceWebAPI.Controllers
 
 
         [HttpGet("{stationID}, {username}, {timeExited}")]
-        public void LogOff(int stationID, string username, DateTime timeExited)
+        public async Task<IActionResult> LogOff(int stationID, string username, DateTime timeExited)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, timeExited);       
+            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
+            
+            if(session.s == null)
+            {
+                return StatusCode(406);
+            }
+            var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
+                new SqlParameter("@StudentID", session.s.ID),
+                new SqlParameter("@timeSlotID", session.c.TimeSlotID),
+                new SqlParameter("@TimeExited", timeExited),
+                new SqlParameter("@StationID", stationID));
+
+            await cmd.ExecuteNonQueryAsync();
+
+            return Ok();
+
         }
 
 
