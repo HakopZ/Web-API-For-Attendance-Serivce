@@ -17,4 +17,8 @@ namespace Test_2.Models
     }
 
     public record StudentRecord(TimeRange Range, StudentInfo StudentInfo);
+    
+    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, DateTime Time);
+
+    public record EventMessage(string StationID, string Message, DateTime Time);
 }

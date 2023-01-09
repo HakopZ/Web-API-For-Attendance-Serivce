@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Test_2;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
 
@@ -14,7 +15,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/CheckStatus")]
         public bool CheckStatus()
         {
-            throw new NotImplementedException();
+            return Communicator.EventOccured;
         }
         [HttpGet("Session/GetStatus")]
         public List<GMRClass> GetStatus()

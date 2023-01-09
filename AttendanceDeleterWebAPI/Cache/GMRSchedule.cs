@@ -15,10 +15,19 @@
 
         public List<GMRClass> GetSessionByTime(int timeSlotID) => Classes.Where(x => x.TimeSlotID == timeSlotID).ToList();
 
-        public (GMRClass, Student) GetClosestClass(string username, bool entered, DateTime time)
+        public (GMRClass gmrClass, Student student) GetClosestClass(string username, bool entered, DateTime time)
         {
             var getClass = Classes.Where(x => x.Students.Exists(s => s.Username == username));
-            var classes = getClass.Where(x => (entered ? Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay : Communicator.timeSlotMap[x.TimeSlotID].start.TimeOfDay) >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
+            IOrderedEnumerable<GMRClass> classes;
+
+            if(entered)
+            {
+                classes = getClass.Where(x => Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
+            }
+            else
+            {
+                classes = getClass.Where(x => Communicator.timeSlotMap[x.TimeSlotID].start.TimeOfDay <= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
+            }
             var cls = classes.First();
             var std = cls.Students.Where(x => x.Username == username).First();
             return (cls, std);
