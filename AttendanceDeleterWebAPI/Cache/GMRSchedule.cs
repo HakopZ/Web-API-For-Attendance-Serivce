@@ -20,9 +20,10 @@
         {
             var getClass = Classes.Where(x => x.Students.Exists(s => s.Username == username));
             IOrderedEnumerable<GMRClass> classes;
+
             if(entered)
             {
-                classes = getClass.Where(x =>  Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
+                classes = getClass.Where(x => Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
             }
             else
             {

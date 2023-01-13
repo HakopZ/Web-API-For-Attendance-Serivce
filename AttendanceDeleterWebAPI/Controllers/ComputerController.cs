@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using Test_2;
+using Test_2.Models;
 using Test_2.ScheduleSetup;
 
 namespace AttendanceWebAPI.Controllers
@@ -10,57 +11,67 @@ namespace AttendanceWebAPI.Controllers
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
-        [HttpGet("{stationID}, {username}, {timeEntered}")]
-        public async Task<IActionResult> LogIn(int stationID, string username, DateTime timeEntered)
+        Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
+        [HttpPost("LogIn")]
+        public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeEntered);
-            if(session.s == null)
+            var session = Communicator.Current_Schedule.GetClosestClass(enterInfo.AccountName, true, enterInfo.Time);
+            if(session.student == null)
             {
-                return StatusCode(406);
+                return NotFound();
             }
-            /*var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
-                new SqlParameter("@StudentID", session.s.ID),
-                new SqlParameter("@timeSlotID", session.c.TimeSlotID),
-                new SqlParameter("@TimeEntered", timeEntered),
-                new SqlParameter("@StationID", stationID));
+            if(stationLoggedInCount.ContainsKey(enterInfo.StationID))
+            {
+                stationLoggedInCount[enterInfo.StationID] += 1;
+            }
+            else
+            {
+                stationLoggedInCount.Add(enterInfo.StationID, 1);
+            }
+
+            if (stationLoggedInCount[enterInfo.StationID] > 1)
+            {
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", enterInfo.Time));
+            }
+
+            var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
+                new SqlParameter("@StudentID", session.student.ID),
+                new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
+                new SqlParameter("@TimeEntered", enterInfo.Time),
+                new SqlParameter("@StationID", enterInfo.StationID));
             
-            await cmd.ExecuteNonQueryAsync();*/
-            Communicator.Current_Schedule.Updated = true;
+            await cmd.ExecuteNonQueryAsync();
+            
             return Ok();
         }
 
 
-        [HttpGet("{stationID}, {username}, {timeExited}")]
-        public async Task<IActionResult> LogOff(int stationID, string username, DateTime timeExited)
+        [HttpPost("LogOff")]
+        public async Task<IActionResult> LogOff([FromBody] MonitorInfo exitInfo)
         {
-            (GMRClass gmrClass, Student student) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
+            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
             
             if(session.student == null)
             {
-                return StatusCode(406);
+                return NotFound();
             }
             var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
-                new SqlParameter("@StudentID", session.student.ID),
-                new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
+                new SqlParameter("@StudentID", session.s.ID),
+                new SqlParameter("@timeSlotID", session.c.TimeSlotID),
                 new SqlParameter("@TimeExited", timeExited),
                 new SqlParameter("@StationID", stationID));
 
             await cmd.ExecuteNonQueryAsync();
 
-            Communicator.Current_Schedule.Updated = true;
             return Ok();
 
         }
 
 
         [HttpPost("{stationID}, {classID}, {time}, {applicationName}")]
-        public void ApplicaitonUpdate(int stationID, string username, DateTime time, string applicationName)
+        public void ApplicaitonUpdate(int stationID, string firstName, string lastName, DateTime time, string applicationName)
         {
-            var session = Communicator.Current_Schedule.GetClosestClass(username, true, time);
-            session.student.CurrentApp = applicationName;
 
-
-            Communicator.Current_Schedule.Updated = true;
         }
     }
 }
