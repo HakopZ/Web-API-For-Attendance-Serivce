@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "AttendanceDeleter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestWebAPIWithConsole", "TestWebAPIWithConsole\TestWebAPIWithConsole.csproj", "{B758875F-4B9B-446C-9A62-91CA5FA9ADEB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{D1D62750-5E2D-4A1F-8B8C-CF81D6D16ECC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B758875F-4B9B-446C-9A62-91CA5FA9ADEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B758875F-4B9B-446C-9A62-91CA5FA9ADEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B758875F-4B9B-446C-9A62-91CA5FA9ADEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1D62750-5E2D-4A1F-8B8C-CF81D6D16ECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1D62750-5E2D-4A1F-8B8C-CF81D6D16ECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1D62750-5E2D-4A1F-8B8C-CF81D6D16ECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1D62750-5E2D-4A1F-8B8C-CF81D6D16ECC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

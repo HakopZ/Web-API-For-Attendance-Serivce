@@ -18,14 +18,14 @@ namespace AttendanceWebAPI.Controllers
             {
                 return StatusCode(406);
             }
-            var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
+            /*var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
                 new SqlParameter("@StudentID", session.s.ID),
                 new SqlParameter("@timeSlotID", session.c.TimeSlotID),
                 new SqlParameter("@TimeEntered", timeEntered),
                 new SqlParameter("@StationID", stationID));
             
-            await cmd.ExecuteNonQueryAsync();
-            
+            await cmd.ExecuteNonQueryAsync();*/
+            Communicator.Current_Schedule.Updated = true;
             return Ok();
         }
 
@@ -33,29 +33,34 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("{stationID}, {username}, {timeExited}")]
         public async Task<IActionResult> LogOff(int stationID, string username, DateTime timeExited)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
+            (GMRClass gmrClass, Student student) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
             
-            if(session.s == null)
+            if(session.student == null)
             {
                 return StatusCode(406);
             }
             var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
-                new SqlParameter("@StudentID", session.s.ID),
-                new SqlParameter("@timeSlotID", session.c.TimeSlotID),
+                new SqlParameter("@StudentID", session.student.ID),
+                new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
                 new SqlParameter("@TimeExited", timeExited),
                 new SqlParameter("@StationID", stationID));
 
             await cmd.ExecuteNonQueryAsync();
 
+            Communicator.Current_Schedule.Updated = true;
             return Ok();
 
         }
 
 
         [HttpPost("{stationID}, {classID}, {time}, {applicationName}")]
-        public void ApplicaitonUpdate(int stationID, string firstName, string lastName, DateTime time, string applicationName)
+        public void ApplicaitonUpdate(int stationID, string username, DateTime time, string applicationName)
         {
+            var session = Communicator.Current_Schedule.GetClosestClass(username, true, time);
+            session.student.CurrentApp = applicationName;
 
+
+            Communicator.Current_Schedule.Updated = true;
         }
     }
 }

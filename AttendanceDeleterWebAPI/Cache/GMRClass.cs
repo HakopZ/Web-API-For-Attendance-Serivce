@@ -8,7 +8,7 @@
         public List<Student> Students { get; set; }
         public List<Instructor> Instructors { get; set; }
         //might be pointless constructor
-        public GMRClass(List<Instructor> instructors, string name, int classID)
+        public GMRClass(List<Instructor> instructors, string name, int timeSlotID, int classID)
         {
             Students = new List<Student>();
             Instructors = instructors;
@@ -16,7 +16,7 @@
             Name = name;
 
         }
-        public GMRClass(List<Instructor> instructors, List<Student> students, string name, int classID)
+        public GMRClass(List<Instructor> instructors, List<Student> students, string name, int timeSlotID, int classID)
         {
             Students = students;
             Instructors = instructors;
