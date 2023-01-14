@@ -18,9 +18,15 @@ namespace AttendanceWebAPI.Controllers
             return Communicator.EventOccured;
         }
         [HttpGet("Session/GetStatus")]
-        public List<GMRClass> GetStatus()
+        public IActionResult GetStatus(DateTime time)
         {
-            throw new NotImplementedException();
+            List<GMRClass> currentClass = Communicator.Current_Schedule.GetClosestClass(time, true);
+            if(currentClass == null)
+            {
+                return NotFound();
+            }
+            
+            currentClass
         }
 
         [HttpPatch("Student/Attendance")]

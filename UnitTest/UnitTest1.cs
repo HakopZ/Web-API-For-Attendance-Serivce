@@ -4,6 +4,7 @@ using Test_2;
 using Test_2.ScheduleSetup;
 using Xunit;
 using System;
+using Test_2.Models;
 
 namespace UnitTest
 {
@@ -18,7 +19,7 @@ namespace UnitTest
             instructors.Add(new Instructor("Hakop", "Zarikyan", 1));
             instructors.Add(new Instructor("Hakop2", "Zarikyan", 2));
 
-            List<Student> students = new List<Student>() { new Student("James", "Smith", 1181, 1, "James.Smith"), new Student("John", "Smith", 1182, 2, "John.Smith") };
+            List<Student> students = new List<Student>() { new Student("James", "Smith", "1181", 1, "James.Smith"), new Student("John", "Smith", "1182", 2, "John.Smith") };
 
             Communicator.timeSlotMap = new Dictionary<int, (DateTime start, DateTime end)>()
             {
@@ -35,7 +36,7 @@ namespace UnitTest
         {
             FillSchedule();
             ComputerController computerController = new ComputerController();
-            var val = await computerController.LogIn(1181, "John.Smith", new DateTime(1, 1, 1, 9, 5, 0));
+            var val = await computerController.LogIn(new MonitorInfo("1181", "John.Smith", "DESKTOP", new DateTime(1, 1, 1, 9, 5, 0)));
             Assert.Equal("Ok", val.ToString());
         }
     }

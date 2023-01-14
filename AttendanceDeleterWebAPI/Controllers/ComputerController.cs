@@ -49,17 +49,17 @@ namespace AttendanceWebAPI.Controllers
         [HttpPost("LogOff")]
         public async Task<IActionResult> LogOff([FromBody] MonitorInfo exitInfo)
         {
-            (GMRClass c, Student s) session = Communicator.Current_Schedule.GetClosestClass(username, true, timeExited); 
+            var session = Communicator.Current_Schedule.GetClosestClass(exitInfo.AccountName, true, exitInfo.Time); 
             
             if(session.student == null)
             {
                 return NotFound();
             }
             var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
-                new SqlParameter("@StudentID", session.s.ID),
-                new SqlParameter("@timeSlotID", session.c.TimeSlotID),
-                new SqlParameter("@TimeExited", timeExited),
-                new SqlParameter("@StationID", stationID));
+                new SqlParameter("@StudentID", session.student.ID),
+                new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
+                new SqlParameter("@TimeExited", exitInfo.Time),
+                new SqlParameter("@StationID", exitInfo.StationID));
 
             await cmd.ExecuteNonQueryAsync();
 

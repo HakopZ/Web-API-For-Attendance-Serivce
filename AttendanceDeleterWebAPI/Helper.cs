@@ -11,5 +11,16 @@ namespace Test_2
             cmd.Parameters.AddRange(parameters);
             return cmd;
         }
+        public static int ToTimeSlot(this DateTime time)
+        {
+            foreach(var pairs in Communicator.timeSlotMap)
+            {
+                if(pairs.Value.start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.Value.end.TimeOfDay)
+                {
+                    return pairs.Key;
+                }
+            }
+            return -1;
+        }
     }
 }
