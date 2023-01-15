@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Test_2.ScheduleSetup;
 
 namespace Test_2.Models
 {
@@ -18,7 +19,9 @@ namespace Test_2.Models
 
     public record StudentRecord(TimeRange Range, StudentInfo StudentInfo);
     
-    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, DateTime Time);
+    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, string currentFileName DateTime Time);
 
     public record EventMessage(string StationID, string Message, DateTime Time);
+
+    public record StatusInfo(List<Student> studentsLoggedIn, List<GMRClass> classes);
 }

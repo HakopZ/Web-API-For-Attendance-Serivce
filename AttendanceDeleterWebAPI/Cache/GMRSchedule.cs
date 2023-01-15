@@ -14,7 +14,7 @@
             ID = id;
         }
 
-        public List<GMRClass> GetSessionByTime(int timeSlotID) => Classes.Where(x => x.TimeSlotID == timeSlotID).ToList();
+        public List<GMRClass> GetClassesByTime(int timeSlotID) => Classes.Where(x => x.TimeSlotID == timeSlotID).ToList();
 
         public (GMRClass gmrClass, Student student) GetClosestClassWithStudent(string username, bool entered, DateTime time)
         {
@@ -34,10 +34,7 @@
             return (cls, std);
         }
 
-        public List<GMRClass> GetClassesAtTime(DateTime time, bool entered)
-        {
-            
-        }
+        
 
     }
 }

@@ -20,5 +20,12 @@
             CurrentApp = "";
             Username = username;
         }
+
+        public bool LogIn(DateTime time, string station)
+        {
+            Entered = time;
+            Attended = true;
+            return StationID == station;
+        }
     }
 }
