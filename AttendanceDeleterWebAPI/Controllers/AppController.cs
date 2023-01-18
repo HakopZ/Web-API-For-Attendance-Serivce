@@ -18,15 +18,34 @@ namespace AttendanceWebAPI.Controllers
             return Communicator.EventOccured;
         }
         [HttpGet("Session/GetStatus")]
-        public IActionResult GetStatus(DateTime time)
+        public IActionResult GetStatus([FromBody] DateTime time)
         {
-            List<GMRClass> currentClass = Communicator.Current_Schedule.GetClosestClass(time, true);
-            if(currentClass == null)
+            List<Student> students = new List<Student>();
+            StatusInfo statusInfo;
+            foreach(var clss in Communicator.Current_Schedule.Classes)
             {
-                return NotFound();
+                var stds = clss.Students.Where(x => x.Attended);
+                if(stds.Count > 0)
+                {
+                    students.AddRange(stds);
+                }
             }
+
+            statusInfo.studentsLoggedIn = students;
+            statusInfo.classes = new List<GMRClass>();
+            int timeSlot = time.ToTimeSlot();
             
-            currentClass
+            if(timeSlot != -1)
+            {
+                var currentClasses = Communicator.Current_Schedule.GetClassesByTime(timeSlot);
+                if (currentClasses.Count == 0)
+                {
+                    return NotFound();
+                }
+                statusInfo.classes = currentClasses;
+                return Ok(statusInfo);
+            }
+            return Ok(statusInfo);
         }
 
         [HttpPatch("Student/Attendance")]
