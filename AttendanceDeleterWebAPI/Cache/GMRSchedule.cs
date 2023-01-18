@@ -34,9 +34,26 @@
             return (cls, std);
         }
 
-        public List<GMRClass> GetClassesAtTime(DateTime time, bool entered)
+        public List<GMRClass> GetClassesAtTime(DateTime time, int windowSize = 0)
         {
-            
+            List<GMRClass> classes = new List<GMRClass>();
+            //timeSlot.Add()
+            DateTime laterTime = time.AddMinutes(windowSize);
+            DateTime earlyTime = time.AddMinutes(-windowSize);
+            int currTimeSlot = time.ToTimeSlot();
+            int laterTimeSlot = laterTime.ToTimeSlot();
+            int earlyTimeSlot = earlyTime.ToTimeSlot();
+            classes.AddRange(GetSessionByTime(currTimeSlot));
+            if (earlyTimeSlot != currTimeSlot)
+            {
+                classes.AddRange(GetSessionByTime(earlyTimeSlot));
+            }
+            if(laterTimeSlot != currTimeSlot)
+            {
+                classes.AddRange(GetSessionByTime(laterTimeSlot));
+            }
+
+            return classes;
         }
 
     }
