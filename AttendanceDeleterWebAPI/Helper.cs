@@ -22,5 +22,15 @@ namespace Test_2
             }
             return -1;
         }
+
+        public enum Filter
+        {
+            TimeSlot,
+            Student,
+            Instructor,
+            Name,
+            ID
+        }
+
     }
 }

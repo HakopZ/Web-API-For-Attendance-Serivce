@@ -25,7 +25,7 @@
         }
 
 
-        public bool GetStudentIDFromUsername(string username, out Student result)
+        public bool GetStudentFromUsername(string username, out Student result)
         {
             result = default;
             for(int i = 0; i < Students.Count; i++)

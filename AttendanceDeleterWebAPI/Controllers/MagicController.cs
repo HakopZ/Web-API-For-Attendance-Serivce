@@ -14,6 +14,7 @@ namespace Test_2.Controllers
         public void MakeSchedule([FromBody] GMRSchedule schedule)
         {
             Communicator.Current_Schedule = schedule;
+            Communicator.Current_Schedule.Updated = true;
         }
 
         [HttpPost("MakeTimeSlotMapper")]

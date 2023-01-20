@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
+using System.Linq;
 using Test_2;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
@@ -12,7 +13,7 @@ namespace AttendanceWebAPI.Controllers
     {
         //Not sure we get classID or if we have to figure it out
         Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
-        ILogger<string> eventLog = new Logger<string>();
+        ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
@@ -37,9 +38,10 @@ namespace AttendanceWebAPI.Controllers
 
             if(!session.student.LogIn(enterInfo.Time, enterInfo.StationID))
             {
+                var std = session.gmrClass.Students.Where(x => x.StationID == enterInfo.StationID).First();
                 string station = session.student.StationID;
                 session.student.StationID = enterInfo.StationID;
-                enterInfo.StationID = station;
+                std.StationID = station;
             }
 
             var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
@@ -49,7 +51,8 @@ namespace AttendanceWebAPI.Controllers
                 new SqlParameter("@StationID", enterInfo.StationID));
             
             await cmd.ExecuteNonQueryAsync();
-            
+
+            Communicator.Current_Schedule.Updated = true;
             return Ok();
         }
 
@@ -70,8 +73,10 @@ namespace AttendanceWebAPI.Controllers
             }
             else
             {
-                eventLog.LogInformation("Log Off When There wasn't a log in", exitInfo.StationID, exitInfo.Time)
+                eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID, exitInfo.Time));
             }
+
+            session.student.LogOut(exitInfo.Time);
 
             var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
                 new SqlParameter("@StudentID", session.student.ID),
@@ -81,6 +86,7 @@ namespace AttendanceWebAPI.Controllers
 
             await cmd.ExecuteNonQueryAsync();
 
+            Communicator.Current_Schedule.Updated = true;
             return Ok();
 
         }
@@ -90,8 +96,15 @@ namespace AttendanceWebAPI.Controllers
         public IActionResult ApplicaitonUpdate([FromBody] MonitorInfo monitorInfo)
         {
             var session = Communicator.Current_Schedule.GetClosestClassWithStudent(monitorInfo.AccountName, true, monitorInfo.Time);
+            if(session.student == null)
+            {
+                return NotFound();
+            }
+            session.student.CurrentApp = monitorInfo.ForegroundWindowTitle;
+            session.student.CurrentFileName = monitorInfo.CurrentFileName;
 
-            Ok();
+            Communicator.Current_Schedule.Updated = true;
+            return Ok();
         }
     }
 }

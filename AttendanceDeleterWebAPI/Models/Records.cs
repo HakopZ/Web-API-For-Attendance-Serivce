@@ -19,9 +19,9 @@ namespace Test_2.Models
 
     public record StudentRecord(TimeRange Range, StudentInfo StudentInfo);
     
-    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, string currentFileName DateTime Time);
+    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, string CurrentFileName, DateTime Time);
 
     public record EventMessage(string StationID, string Message, DateTime Time);
 
-    public record StatusInfo(List<Student> studentsLoggedIn, List<GMRClass> classes);
+    public record StatusInfo(List<Student> StudentsLoggedIn, List<GMRClass> Classes);
 }

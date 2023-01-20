@@ -14,7 +14,7 @@ namespace Test_2
         public static SqlConnection sqlConnection = new SqlConnection(connectionString);
         public static HttpClient client = new HttpClient();
         public static Queue<EventMessage> eventMessages= new Queue<EventMessage>();
-        public static bool EventOccured = false;
+       // public static bool EventOccured = false;
         
     }
 }

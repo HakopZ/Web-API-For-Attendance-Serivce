@@ -5,6 +5,8 @@
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
         public string CurrentApp { get; set; }
+        
+        public string CurrentFileName { get; set; } 
         public string Username { get; set; }
         public string StationID { get; set; }
         public int ID { get; }
@@ -26,6 +28,12 @@
             Entered = time;
             Attended = true;
             return StationID == station;
+        }
+
+        public void LogOut(DateTime time)
+        {
+            Exited = time;
+            Attended = false;
         }
     }
 }

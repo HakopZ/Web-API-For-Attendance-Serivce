@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Test_2;
+using Test_2.FilterClasses;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
 
@@ -12,54 +13,71 @@ namespace AttendanceWebAPI.Controllers
     [Route("[controller]")]
     public class AppController : ControllerBase
     {
-        [HttpGet("Session/CheckStatus")]
-        public bool CheckStatus()
+
+        [HttpGet("AllClasses")]
+        public ActionResult<GMRClass> GetAllClasses()
         {
-            return Communicator.EventOccured;
+            return Ok(Communicator.Current_Schedule.Classes);
+        }
+        [HttpGet("Session/CheckStatus")]
+        public ActionResult<bool> CheckStatus()
+        {
+            return Ok(Communicator.Current_Schedule.Updated);
         }
         [HttpGet("Session/GetStatus")]
-        public IActionResult GetStatus([FromBody] DateTime time)
+        public ActionResult<StatusInfo> GetStatus([FromBody] DateTime time)
         {
             List<Student> students = new List<Student>();
             StatusInfo statusInfo;
-            foreach(var clss in Communicator.Current_Schedule.Classes)
+
+            foreach (var clss in Communicator.Current_Schedule.Classes)
             {
                 var stds = clss.Students.Where(x => x.Attended);
-                if(stds.Count > 0)
+                if(stds.Count() > 0)
                 {
                     students.AddRange(stds);
                 }
             }
-
-            statusInfo.studentsLoggedIn = students;
-            statusInfo.classes = new List<GMRClass>();
+            
             int timeSlot = time.ToTimeSlot();
             
             if(timeSlot != -1)
             {
-                var currentClasses = Communicator.Current_Schedule.GetClassesByTime(timeSlot);
+                
+                var currentClasses = Communicator.Current_Schedule.FilterForClass(new List<IFilter>() { new TimeSlotFilter(timeSlot) });
                 if (currentClasses.Count == 0)
                 {
                     return NotFound();
                 }
-                statusInfo.classes = currentClasses;
+                statusInfo = new StatusInfo(students, currentClasses);
                 return Ok(statusInfo);
             }
+            statusInfo = new StatusInfo(students, new List<GMRClass>());
             return Ok(statusInfo);
         }
 
-        [HttpPatch("Student/Attendance")]
-        public void UpdateStudentAttendance([FromBody] StudentAttendance body)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         [HttpPatch("Student/Location")]
-        public void UpdateStudentLocation([FromBody] StudentLocation body)
+        public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
         {
-            throw new NotImplementedException();
+            List<IFilter> filters = new List<IFilter>()
+            {
+                new TimeSlotFilter(body.TimeSlotID),
+                new StudentFilter(body.StudentID)
+            };
+            var cls = Communicator.Current_Schedule.FilterForClass(filters).First();
+            if(cls == null)
+            {
+                return NotFound();
+            }
+            cls.Students = cls.Students.Where(x => x.ID != body.StudentID).ToList();
+
+        //    Communicator.Current_Schedule.FilterForClass()
+            return Ok();
         }
 
+        //public IActionResult OnLaptop()
         [HttpPatch("Instructor")]
         public void UpdateClassInstructor([FromBody] UpdateInstructor body)
         {
@@ -67,20 +85,20 @@ namespace AttendanceWebAPI.Controllers
         }
 
         [HttpGet("History/ByDate")]
-        public IActionResult GetHistoryByDate([FromQuery] TimeRange body)
+        public ActionResult<List<GMRClass>> GetHistoryByDate([FromQuery] TimeRange body)
         {
             throw new NotImplementedException();
         }
         
 
         [HttpGet("History/ByID")]
-        public IActionResult GetStudentHistory([FromQuery] StudentInfo body)
+        public ActionResult<List<GMRClass>> GetStudentHistory([FromQuery] StudentInfo body)
         {
             throw new NotImplementedException();
         }
 
         [HttpGet("History/ByStudentRecord")]
-        public IActionResult GetStudentHistoryByDate([FromQuery] StudentRecord body)
+        public ActionResult<List<GMRClass>> GetStudentHistoryByDate([FromQuery] StudentRecord body)
         {
             throw new NotImplementedException();
         }
