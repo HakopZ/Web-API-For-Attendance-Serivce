@@ -33,19 +33,10 @@ namespace Test_2.ScheduleSetup
             return Classes.Where(x => filters.TrueForAll(f => f.Apply(x))).ToList();
         }
 
-        public (GMRClass gmrClass, Student student) GetClosestClassWithStudent(string username, bool entered, DateTime time)
+        public (GMRClass gmrClass, Student student) GetClosestClassWithStudent(string username, bool enterCheck)
         {
-            var classesWithStudent = Classes.Where(x => x.Students.Any(x => x.Username == username));
-            IOrderedEnumerable<GMRClass> classes;
-
-            if (entered)
-            {
-                classes = classesWithStudent.Where(x => Communicator.timeSlotMap[x.TimeSlotID].end.TimeOfDay >= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
-            }
-            else
-            {
-                classes = classesWithStudent.Where(x => Communicator.timeSlotMap[x.TimeSlotID].start.TimeOfDay <= time.TimeOfDay).OrderBy(t => Communicator.timeSlotMap[t.TimeSlotID].end.TimeOfDay);
-            }
+            
+            var classes = Classes.Where(x => x.Students.Any(x => x.Username == username && x.Attended == (!enterCheck)));
             var cls = classes.First();
             cls.GetStudentFromUsername(username, out Student result);
             return (cls, result);

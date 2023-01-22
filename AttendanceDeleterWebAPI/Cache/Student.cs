@@ -23,16 +23,14 @@
             Username = username;
         }
 
-        public bool LogIn(DateTime time, string station)
+        public bool LogIn(string station)
         {
-            Entered = time;
             Attended = true;
             return StationID == station;
         }
 
-        public void LogOut(DateTime time)
+        public void LogOut()
         {
-            Exited = time;
             Attended = false;
         }
     }

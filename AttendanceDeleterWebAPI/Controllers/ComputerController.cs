@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Test_2;
@@ -17,7 +18,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
-            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(enterInfo.AccountName, true, enterInfo.Time);
+            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(enterInfo.AccountName, true);
             if(session.student == null)
             {
                 return NotFound();
@@ -33,10 +34,10 @@ namespace AttendanceWebAPI.Controllers
 
             if (stationLoggedInCount[enterInfo.StationID] > 1)
             {
-                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", enterInfo.Time));
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", DateTime.Now));
             }
 
-            if(!session.student.LogIn(enterInfo.Time, enterInfo.StationID))
+            if(!session.student.LogIn(enterInfo.StationID))
             {
                 var std = session.gmrClass.Students.Where(x => x.StationID == enterInfo.StationID).First();
                 string station = session.student.StationID;
@@ -44,15 +45,18 @@ namespace AttendanceWebAPI.Controllers
                 std.StationID = station;
             }
 
-            var cmd =  Helper.CallStoredProcedure("dbo.StudentLoggedIn", 
+            var cmd = Helper.CallStoredProcedure("dbo.StudentLogIn",
                 new SqlParameter("@StudentID", session.student.ID),
                 new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
-                new SqlParameter("@TimeEntered", enterInfo.Time),
+                new SqlParameter("@IsManual", false),
                 new SqlParameter("@StationID", enterInfo.StationID));
             
+            var returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
+            returnParameter.Direction = ParameterDirection.ReturnValue;
             await cmd.ExecuteNonQueryAsync();
 
             Communicator.Current_Schedule.Updated = true;
+            session.student.Entered = (DateTime)returnParameter.Value;
             return Ok();
         }
 
@@ -60,7 +64,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpPost("LogOff")]
         public async Task<IActionResult> LogOff([FromBody] MonitorInfo exitInfo)
         {
-            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(exitInfo.AccountName, true, exitInfo.Time); 
+            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(exitInfo.AccountName, true); 
             
             if(session.student == null)
             {
@@ -73,20 +77,22 @@ namespace AttendanceWebAPI.Controllers
             }
             else
             {
-                eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID, exitInfo.Time));
+                eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID));
             }
 
-            session.student.LogOut(exitInfo.Time);
+            session.student.LogOut();
 
-            var cmd = Helper.CallStoredProcedure("dbo.StudentLoggedOff", 
+            var cmd = Helper.CallStoredProcedure("dbo.StudentLogOff", 
                 new SqlParameter("@StudentID", session.student.ID),
                 new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
-                new SqlParameter("@TimeExited", exitInfo.Time),
                 new SqlParameter("@StationID", exitInfo.StationID));
 
+            var returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
+            returnParameter.Direction = ParameterDirection.ReturnValue;
             await cmd.ExecuteNonQueryAsync();
 
             Communicator.Current_Schedule.Updated = true;
+            session.student.Exited = (DateTime)returnParameter.Value;
             return Ok();
 
         }
@@ -95,7 +101,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpPost("{stationID}, {classID}, {time}, {applicationName}")]
         public IActionResult ApplicaitonUpdate([FromBody] MonitorInfo monitorInfo)
         {
-            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(monitorInfo.AccountName, true, monitorInfo.Time);
+            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(monitorInfo.AccountName, true);
             if(session.student == null)
             {
                 return NotFound();

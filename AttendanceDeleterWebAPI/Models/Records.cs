@@ -5,7 +5,7 @@ namespace Test_2.Models
 {
     public record StudentAttendance(int StudentID, int TimeSlotID, bool Status);
 
-    public record StudentLocation(int StudentID, int TimeSlotID, int NewClassID);
+    public record StudentLocation(int StudentID, int TimeSlotID, int NewClassID, string NewStationID);
 
     public record UpdateInstructor(int ClassID, int TimeSlotID, int NewInstructorID);
 
@@ -19,7 +19,7 @@ namespace Test_2.Models
 
     public record StudentRecord(TimeRange Range, StudentInfo StudentInfo);
     
-    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, string CurrentFileName, DateTime Time);
+    public record MonitorInfo(string StationID, string AccountName, string ForegroundWindowTitle, string CurrentFileName);
 
     public record EventMessage(string StationID, string Message, DateTime Time);
 

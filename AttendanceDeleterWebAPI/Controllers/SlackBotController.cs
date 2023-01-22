@@ -16,6 +16,8 @@ namespace Test_2.Controllers
             return Ok(challenge);
         }
 
+
+        //Needs to call the SQL most likely (discuss)
         [HttpPatch("SlackBot/UpdateAttendance")]
         public void UpdateStudentAttendance([FromBody] StudentAttendance body)
         {
@@ -24,6 +26,9 @@ namespace Test_2.Controllers
             std.Attended = body.Status;
         }
 
+
+        //NOT DONE YET BECAUSE WE NEED TO ADD ANOTHER PARAMETER
+        //NEED TO MOVE THE STUDENT STILL
         [HttpPatch("SlackBot/Location")]
         public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
         {
@@ -32,6 +37,7 @@ namespace Test_2.Controllers
                 new TimeSlotFilter(body.TimeSlotID),
                 new StudentFilter(body.StudentID)
             };
+
             var cls = Communicator.Current_Schedule.FilterForClass(filters).First();
             if (cls == null)
             {

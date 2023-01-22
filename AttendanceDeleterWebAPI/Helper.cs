@@ -11,16 +11,17 @@ namespace Test_2
             cmd.Parameters.AddRange(parameters);
             return cmd;
         }
-        public static int ToTimeSlot(this DateTime time)
+        public static List<int> ToTimeSlot(this DateTime time)
         {
+            List<int> timeSlots = new List<int>();
             foreach(var pairs in Communicator.timeSlotMap)
             {
-                if(pairs.Value.start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.Value.end.TimeOfDay)
+                if(pairs.start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.end.TimeOfDay)
                 {
-                    return pairs.Key;
+                    timeSlots.Add(pairs.timeSlotID);
                 }
             }
-            return -1;
+            return timeSlots;
         }
 
         public enum Filter

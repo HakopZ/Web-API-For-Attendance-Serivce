@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using Test_2;
 using Test_2.FilterClasses;
 using Test_2.Models;
@@ -13,12 +14,18 @@ namespace AttendanceWebAPI.Controllers
     [Route("[controller]")]
     public class AppController : ControllerBase
     {
+        [HttpGet("GetTimeSlotIDs")]
+        public ActionResult<List<(int, DateTime, DateTime)>> GetTimeSlotIDs()
+        {
+            return Ok(Communicator.timeSlotMap);
+        }
 
         [HttpGet("AllClasses")]
         public ActionResult<GMRClass> GetAllClasses()
         {
             return Ok(Communicator.Current_Schedule.Classes);
         }
+
         [HttpGet("Session/CheckStatus")]
         public ActionResult<bool> CheckStatus()
         {
@@ -33,30 +40,35 @@ namespace AttendanceWebAPI.Controllers
             foreach (var clss in Communicator.Current_Schedule.Classes)
             {
                 var stds = clss.Students.Where(x => x.Attended);
-                if(stds.Count() > 0)
+                if (stds.Count() > 0)
                 {
                     students.AddRange(stds);
                 }
             }
-            
-            int timeSlot = time.ToTimeSlot();
-            
-            if(timeSlot != -1)
+
+            List<int> timeSlot = time.ToTimeSlot();
+
+            if (timeSlot.Count > 0)
             {
-                
-                var currentClasses = Communicator.Current_Schedule.FilterForClass(new List<IFilter>() { new TimeSlotFilter(timeSlot) });
-                if (currentClasses.Count == 0)
+                var timeSlotsInSchedule = timeSlot.Where(a => Communicator.Current_Schedule.Classes.Any(x => x.TimeSlotID == a));
+                List<IFilter> filters = new List<IFilter>();
+                List<GMRClass> GMRClasses = new List<GMRClass>();
+                foreach (var tSlot in timeSlotsInSchedule)
+                {
+                    GMRClasses.AddRange(Communicator.Current_Schedule.FilterForClass(new List<IFilter>() { new TimeSlotFilter(tSlot) }));
+                }
+                if (GMRClasses.Count == 0)
                 {
                     return NotFound();
                 }
-                statusInfo = new StatusInfo(students, currentClasses);
+                statusInfo = new StatusInfo(students, GMRClasses);
                 return Ok(statusInfo);
             }
             statusInfo = new StatusInfo(students, new List<GMRClass>());
             return Ok(statusInfo);
         }
 
-        
+
 
         [HttpPatch("Student/Location")]
         public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
@@ -67,14 +79,36 @@ namespace AttendanceWebAPI.Controllers
                 new StudentFilter(body.StudentID)
             };
             var cls = Communicator.Current_Schedule.FilterForClass(filters).First();
-            if(cls == null)
+            if (cls == null)
             {
                 return NotFound();
             }
-            cls.Students = cls.Students.Where(x => x.ID != body.StudentID).ToList();
 
-        //    Communicator.Current_Schedule.FilterForClass()
-            return Ok();
+
+            foreach (var student in cls.Students)
+            {
+                if (student.ID == body.StudentID)
+                {
+                    cls.Students.Remove(student);
+                    var newClass = Communicator.Current_Schedule.FilterForClass(new List<IFilter> { new TimeSlotFilter(body.TimeSlotID), new ClassIDFilter(body.NewClassID) }).First();
+                    if (newClass == null)
+                    {
+                        return NotFound();
+                    }
+                    var checkForStudent = newClass.Students.Where(x => x.StationID == body.NewStationID);
+                    if (checkForStudent.Count() > 0)
+                    {
+                        var studentToSwap = checkForStudent.First();
+                        studentToSwap.StationID = student.StationID; 
+                        cls.Students.Add(studentToSwap);
+                    }
+
+                    student.StationID = body.NewStationID;
+                    newClass.Students.Add(student);
+                }
+            }
+            
+            return NotFound();
         }
 
         //public IActionResult OnLaptop()
@@ -89,7 +123,7 @@ namespace AttendanceWebAPI.Controllers
         {
             throw new NotImplementedException();
         }
-        
+
 
         [HttpGet("History/ByID")]
         public ActionResult<List<GMRClass>> GetStudentHistory([FromQuery] StudentInfo body)
