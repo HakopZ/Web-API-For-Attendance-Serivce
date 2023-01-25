@@ -4,8 +4,11 @@ namespace Test_2
 {
     public static class Helper
     {
-        public static SqlCommand CallStoredProcedure(string procedureName, params SqlParameter[] parameters)
+        public static async Task<SqlCommand> CallStoredProcedure(string procedureName, params SqlParameter[] parameters)
         {
+
+            await Communicator.sqlConnection.OpenAsync();
+            Communicator.sqlConnection.CreateCommand();
             SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddRange(parameters);

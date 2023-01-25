@@ -18,11 +18,11 @@ namespace AttendanceWebAPI.Controllers
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
-            var session = Communicator.Current_Schedule.GetClosestClassWithStudent(enterInfo.AccountName, true);
-            if(session.student == null)
-            {
-                return NotFound();
-            }
+            //var session = Communicator.Current_Schedule.GetClosestClassWithStudent(enterInfo.AccountName, true);
+            //if(session.student == null)
+            //{
+            //    return NotFound();
+            //}
             if(stationLoggedInCount.ContainsKey(enterInfo.StationID))
             {
                 stationLoggedInCount[enterInfo.StationID] += 1;
@@ -34,29 +34,29 @@ namespace AttendanceWebAPI.Controllers
 
             if (stationLoggedInCount[enterInfo.StationID] > 1)
             {
-                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", DateTime.Now));
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
             }
 
-            if(!session.student.LogIn(enterInfo.StationID))
-            {
-                var std = session.gmrClass.Students.Where(x => x.StationID == enterInfo.StationID).First();
-                string station = session.student.StationID;
-                session.student.StationID = enterInfo.StationID;
-                std.StationID = station;
-            }
+            //if(!session.student.LogIn(enterInfo.StationID))
+            //{
+            //    var std = session.gmrClass.Students.Where(x => x.StationID == enterInfo.StationID).First();
+            //    string station = session.student.StationID;
+            //    session.student.StationID = enterInfo.StationID;
+            //    std.StationID = station;
+            //}
 
-            var cmd = Helper.CallStoredProcedure("dbo.StudentLogIn",
-                new SqlParameter("@StudentID", session.student.ID),
-                new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
-                new SqlParameter("@IsManual", false),
-                new SqlParameter("@StationID", enterInfo.StationID));
+            //var cmd = await Helper.CallStoredProcedure("dbo.StudentLogIn",
+            //    new SqlParameter("@StudentID", session.student.ID),
+            //    new SqlParameter("@timeSlotID", session.gmrClass.TimeSlotID),
+            //    new SqlParameter("@IsManual", false),
+            //    new SqlParameter("@StationID", enterInfo.StationID));
             
-            var returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
-            returnParameter.Direction = ParameterDirection.ReturnValue;
-            await cmd.ExecuteNonQueryAsync();
-
-            Communicator.Current_Schedule.Updated = true;
-            session.student.Entered = (DateTime)returnParameter.Value;
+            //var returnParameter = cmd.Parameters.Add("@ReturnVal", SqlDbType.Int);
+            //returnParameter.Direction = ParameterDirection.ReturnValue;
+            //await cmd.ExecuteNonQueryAsync();
+            //await Communicator.sqlConnection.CloseAsync();
+            //Communicator.Current_Schedule.Updated = true;
+            //session.student.Entered = (DateTime)returnParameter.Value;
             return Ok();
         }
 
