@@ -8,7 +8,7 @@ namespace Test_2
     {
         static string baseAddress = "https://localhost:7247/";
         static string connectionString = "";
-        
+        public static bool SessionUpdate = false;
         public static GMRSchedule Current_Schedule { get; set; }
         public static List<(int timeSlotID, DateTime start, DateTime end)> timeSlotMap = new List<(int, DateTime, DateTime)>();
         public static SqlConnection sqlConnection = new SqlConnection(connectionString);

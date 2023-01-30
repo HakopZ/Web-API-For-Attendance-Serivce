@@ -21,53 +21,72 @@ namespace AttendanceWebAPI.Controllers
             return Ok(Communicator.timeSlotMap);
         }
 
-        [HttpGet("AllClasses")]
-        public ActionResult<GMRClass> GetAllClasses()
+        [HttpGet("Session/AllClasses")]
+        public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
-            throw new NotImplementedException();
+            
+            await Communicator.sqlConnection.OpenAsync();
+            SqlCommand cmd = new SqlCommand("GetAllClasses");
+            var reader = await cmd.ExecuteReaderAsync();
+            List<GMRSession> sessions = new List<GMRSession>();
+            while(await reader.ReadAsync())
+            {
+                GMRSession temp = new GMRSession() { StationID = (int)reader[0], StudentID = (int)reader[1], TimeSlotID = (int)reader[2] };
+                sessions.Add(temp);
+            }
+            return Ok(sessions);
         }
 
         [HttpGet("Session/CheckStatus")]
         public ActionResult<bool> CheckStatus()
         {
-            return Ok(Communicator.Current_Schedule.Updated);
+            return Ok(Communicator.SessionUpdate);
         }
         [HttpGet("Session/GetStatus")]
-        public ActionResult<StatusInfo> GetStatus([FromBody] DateTime time)
+        public async Task<ActionResult<List<GMRSession>>> GetCurrentStatus()
         {
-            throw new NotImplementedException();
+            await Communicator.sqlConnection.OpenAsync();
+            SqlCommand cmd = new SqlCommand("GetCurrentSessions");
+            var reader = await cmd.ExecuteReaderAsync();
+            List<GMRSession> sessions = new List<GMRSession>();
+            while(await reader.ReadAsync())
+            {
+                GMRSession temp = new GMRSession() { StationID = (int)reader[0], StudentID = (int)reader[1], TimeSlotID = (int)reader[2] };
+                sessions.Add(temp);
+            }
+            return Ok(sessions);
         }
 
 
 
-        [HttpPatch("Student/Location")]
+        [HttpPatch("Student/UpdateStudentLocation")]
         public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
         {
             throw new NotImplementedException();
         }
 
         //public IActionResult OnLaptop()
-        [HttpPatch("Instructor")]
+        [HttpPatch("UpdateInstructor")]
         public ActionResult UpdateClassInstructor([FromBody] UpdateInstructor body)
         {
             throw new NotImplementedException();
         }
 
-        [HttpGet("History/ByDate")]
-        public ActionResult<List<GMRClass>> GetHistoryByDate([FromBody][Bind("Start", "End")] HistoryInfo info)
+        [HttpGet("History/GetByDate")]
+        public ActionResult<List<GMRClass>> GetHistoryByDate([FromBody] DateTime start, [FromBody] DateTime end)
         {
             throw new NotImplementedException();
         }
 
 
-        [HttpGet("History/ByID")]
-        public ActionResult<List<GMRClass>> GetStudentHistory([FromBody][Bind("StudentID")] HistoryInfo info)
+        [HttpGet("History/GetByStudentID")]
+        public ActionResult<List<GMRClass>> GetStudentHistory([FromBody] int studentID)
         {
             throw new NotImplementedException();
         }
 
-        [HttpGet("History/ByStudentRecord")]
-        public ActionResult<List<GMRClass>> GetStudentHistoryByDate([FromBody][Bind("Start", "End", "StudentID")] HistoryInfo info)
+        [HttpGet("History/GetByStudentRecord")]
+        public ActionResult<List<GMRClass>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
         {
             throw new NotImplementedException();
         }
