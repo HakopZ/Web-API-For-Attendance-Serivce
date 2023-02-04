@@ -10,6 +10,11 @@ namespace Test_2.Models
 
         [Required] 
         public int ID { get; set; }
+
+        public List<Student> Students { get; set; }
+
+        public Instructor ClassInstructor { get; set; }
+
         //might be pointless constructor
 
         /*public GMRClass(List<Instructor> instructors, string name, int timeSlotID, int classID)
