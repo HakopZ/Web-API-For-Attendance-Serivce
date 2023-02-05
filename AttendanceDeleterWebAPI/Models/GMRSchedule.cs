@@ -14,20 +14,7 @@ namespace Test_2.ScheduleSetup
         public List<GMRSession> Classes { get; set; }
 
         [Required]
-        public DateTime Date { get; private set; }
+        public DateOnly Date { get; private set; }
         
-        
-        
-        /*public GMRSchedule(List<GMRClass> classes, DateTime date, int id)
-        {
-            Classes = classes;
-            Date = date;
-            ID = id;
-        }*/
-
-
-
-        
-
     }
 }

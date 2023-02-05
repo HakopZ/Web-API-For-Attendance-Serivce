@@ -5,7 +5,7 @@ namespace Test_2.Models
 {
     public record UpdateInstructor(int ClassID, int TimeSlotID, int NewInstructorID);
 
-    public record EventMessage(string StationID, string Message, TimeOnly Time);
+    public record EventMessage(int StationID, string Message, TimeOnly Time);
 
     public record StatusInfo(List<Student> StudentsLoggedIn, List<GMRClass> Classes);
 }

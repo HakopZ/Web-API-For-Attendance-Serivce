@@ -43,7 +43,7 @@ namespace AttendanceWebAPI.Controllers
             return Ok(Communicator.SessionUpdate);
         }
         [HttpGet("Session/GetStatus")]
-        public async Task<ActionResult<List<GMRSession>>> GetCurrentStatus()
+        public async Task<ActionResult<List<GMRSession>>> GetCurrentSessions()
         {
             await Communicator.sqlConnection.OpenAsync();
             SqlCommand cmd = new SqlCommand("GetCurrentSessions");
@@ -51,7 +51,7 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> sessions = new List<GMRSession>();
             while(await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession() { StationID = (int)reader[0], StudentID = (int)reader[1], TimeSlotID = (int)reader[2] };
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (string)reader[3]);
                 sessions.Add(temp);
             }
             return Ok(sessions);
@@ -60,9 +60,11 @@ namespace AttendanceWebAPI.Controllers
 
 
         [HttpPatch("Student/UpdateStudentLocation")]
-        public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
+        public async ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
         {
-            throw new NotImplementedException();
+
+            await Helper.CallStoredProcedure("SwapSession", new SqlParameter("@OldSessionID", body.OldSessionID), new SqlParameter("@NewSessionID", body.NewSessionID),
+                new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
         }
 
         //public IActionResult OnLaptop()

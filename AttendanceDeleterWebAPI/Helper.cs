@@ -17,6 +17,10 @@ namespace Test_2
             await cmd.ExecuteNonQueryAsync();
             await Communicator.sqlConnection.CloseAsync();
         }
+
+        
+
+        //might not be needed
         public static List<int> ToTimeSlot(this DateTime time)
         {
             List<int> timeSlots = new List<int>();
@@ -30,14 +34,6 @@ namespace Test_2
             return timeSlots;
         }
 
-        public enum Filter
-        {
-            TimeSlot,
-            Student,
-            Instructor,
-            Name,
-            ID
-        }
 
     }
 }

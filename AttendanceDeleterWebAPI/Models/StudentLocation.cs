@@ -5,15 +5,15 @@ namespace Test_2.Models
     public class StudentLocation
     {
         [Required]
-        public int StudentID { get; set; }
+        public int OldSessionID { get; set; }
 
         [Required]
-        public int TimeSlotID { get; set; }
+        public int NewSessionID { get; set; }
 
         [Required]
-        public int NewClassID { get; set; }
+        public int InstructorID { get; set; }
 
-        [Required]
-        public int NewStationID { get; set; }  
+
+        public int? ReplacementID { get; set; }
     }
 }

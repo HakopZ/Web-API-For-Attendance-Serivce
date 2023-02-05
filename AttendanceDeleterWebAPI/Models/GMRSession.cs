@@ -11,12 +11,18 @@ namespace Test_2.ScheduleSetup
         public int TimeSlotID { get; set; }
 
         [Required] 
-        public string StationName { get; set; }
+        public int StationID { get; set; }
 
         [Required]
-        public string InstructorName { get; set; }
+        public string InstructorID { get; set; }
 
-        [Required]
-        public DateOnly Date { get; set; }
+
+        public GMRSession(int studentID, int timeSlotId, int stationID, string instructorID)
+        {
+            StudentID = studentID;
+            TimeSlotID = timeSlotId;
+            StationID = stationID;
+            InstructorID = instructorID;
+        }
     }
 }

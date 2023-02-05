@@ -13,28 +13,21 @@ namespace AttendanceWebAPI.Controllers
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
-        Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
+        //Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
         public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         //might be a post call discuss later
         [HttpPatch("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
-
-            /*
-             * 
-             * I might not be handling this. Probably a delete
-             * 
-             */
-
-
             var returnVal = new SqlParameter("@DuplicateStationID", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
 
 
-            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@Date", enterInfo.TimeOfRecord), new SqlParameter("@Username", enterInfo.AccountName),
-                 new SqlParameter("@CurrentWindow", enterInfo.ForegroundWindowTitle), new SqlParameter("@CurrentFileName", enterInfo.CurrentFileName), returnVal);
+            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@Username", enterInfo.AccountName), new SqlParameter("@Date", enterInfo.TimeOfRecord), returnVal);
 
-            //if (returnVal != -1)
-            //Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
+            if ((int)returnVal.Value != -1)
+            {
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
+            }
             Communicator.SessionUpdate = true;
             return Ok();
         }
