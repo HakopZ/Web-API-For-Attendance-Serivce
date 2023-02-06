@@ -19,9 +19,10 @@ namespace Test_2.Controllers
         }
 
         [HttpPatch("UpdateSchedule")]
-        public Task<ActionResult> UpdateSchedule([FromBody] UpdateScheduleInfo info)
+        public async Task<ActionResult> UpdateSchedule([FromBody] UpdateScheduleInfo info)
         {
-            var cmd = Helper.CallStoredProcedure("UpdateSchedule", new SqlParameter("@StudentID", ));
+            // var cmd = Helper.CallStoredProcedure("UpdateSchedule", new SqlParameter("@StudentID", ));
+            return Ok();
         }
         [HttpPost("MakeTimeSlotMapper")]
         public void MakeTimeSlotMapper(List<(int, DateTime, DateTime)> values)

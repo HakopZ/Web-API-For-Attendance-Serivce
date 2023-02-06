@@ -14,15 +14,16 @@ namespace Test_2.ScheduleSetup
         public int StationID { get; set; }
 
         [Required]
-        public string InstructorID { get; set; }
+        public int InstructorID { get; set; }
 
-
-        public GMRSession(int studentID, int timeSlotId, int stationID, string instructorID)
+        public DateOnly? Date { get; set; }
+        public GMRSession(int studentID, int timeSlotId, int stationID, int instructorID, DateOnly? date = null)
         {
             StudentID = studentID;
             TimeSlotID = timeSlotId;
             StationID = stationID;
             InstructorID = instructorID;
+            Date = date;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Microsoft.SqlServer.Server;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace Test_2
@@ -10,7 +11,6 @@ namespace Test_2
         public static async Task CallStoredProcedure(string procedureName, params SqlParameter[] parameters)
         {
             await Communicator.sqlConnection.OpenAsync();
-            Communicator.sqlConnection.CreateCommand();
             SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddRange(parameters);
@@ -18,7 +18,17 @@ namespace Test_2
             await Communicator.sqlConnection.CloseAsync();
         }
 
-        
+        public static async Task<SqlDataReader> CallReader(string procedureName, params SqlParameter[] parameters)
+        {
+            await Communicator.sqlConnection.OpenAsync();
+            SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddRange(parameters);
+            var reader = await cmd.ExecuteReaderAsync();
+            await Communicator.sqlConnection.CloseAsync();
+
+            return reader;
+        }
 
         //might not be needed
         public static List<int> ToTimeSlot(this DateTime time)

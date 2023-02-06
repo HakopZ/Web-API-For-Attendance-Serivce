@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Test_2.FilterClasses;
 using Test_2.Models;
 
 namespace Test_2.ScheduleSetup

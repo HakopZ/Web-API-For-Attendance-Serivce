@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Web.Http.Results;
 using Test_2;
-using Test_2.FilterClasses;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
 
@@ -24,14 +24,14 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
-            
+
             await Communicator.sqlConnection.OpenAsync();
             SqlCommand cmd = new SqlCommand("GetAllClasses");
             var reader = await cmd.ExecuteReaderAsync();
             List<GMRSession> sessions = new List<GMRSession>();
-            while(await reader.ReadAsync())
+            while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession() { StationID = (int)reader[0], StudentID = (int)reader[1], TimeSlotID = (int)reader[2] };
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (int)reader[3]);
                 sessions.Add(temp);
             }
             return Ok(sessions);
@@ -48,10 +48,11 @@ namespace AttendanceWebAPI.Controllers
             await Communicator.sqlConnection.OpenAsync();
             SqlCommand cmd = new SqlCommand("GetCurrentSessions");
             var reader = await cmd.ExecuteReaderAsync();
+            await Communicator.sqlConnection.CloseAsync();
             List<GMRSession> sessions = new List<GMRSession>();
-            while(await reader.ReadAsync())
+            while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (string)reader[3]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (int)reader[3]);
                 sessions.Add(temp);
             }
             return Ok(sessions);
@@ -60,37 +61,80 @@ namespace AttendanceWebAPI.Controllers
 
 
         [HttpPatch("Student/UpdateStudentLocation")]
-        public async ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
+        public async Task<ActionResult> UpdateStudentLocation([FromBody] StudentLocation body)
         {
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             await Helper.CallStoredProcedure("SwapSession", new SqlParameter("@OldSessionID", body.OldSessionID), new SqlParameter("@NewSessionID", body.NewSessionID),
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
+
+            return Ok();
         }
 
         //public IActionResult OnLaptop()
         [HttpPatch("UpdateInstructor")]
-        public ActionResult UpdateClassInstructor([FromBody] UpdateInstructor body)
+        public async Task<ActionResult> UpdateClassInstructor([FromBody] UpdateInstructor body)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            await Helper.CallStoredProcedure("SwapInstructor", new SqlParameter("@OldTeachingStationID", body.OldTeachingStationID), new SqlParameter("@NewTeachingStationID", body.NewTeachingStationID),
+                new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
+
+            return Ok();
         }
 
         [HttpGet("History/GetByDate")]
-        public ActionResult<List<GMRClass>> GetHistoryByDate([FromBody] DateTime start, [FromBody] DateTime end)
+        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate([FromBody] DateTime start, [FromBody] DateTime end)
         {
-            throw new NotImplementedException();
+            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
+
+            List<GMRSession> classes = new List<GMRSession>();
+            while (await reader.ReadAsync())
+            {
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                classes.Add(temp);
+            }
+            return Ok(classes);
         }
 
 
         [HttpGet("History/GetByStudentID")]
-        public ActionResult<List<GMRClass>> GetStudentHistory([FromBody] int studentID)
+        public async Task<ActionResult<List<GMRSession>>> GetStudentHistory([FromBody] int studentID)
         {
-            throw new NotImplementedException();
+
+            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StudentID", studentID));
+
+            List<GMRSession> classes = new List<GMRSession>();
+            while (await reader.ReadAsync())
+            {
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                classes.Add(temp);
+            }
+            return Ok(classes);
         }
 
         [HttpGet("History/GetByStudentRecord")]
-        public ActionResult<List<GMRClass>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
+        public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", info.Start), new SqlParameter("@EndDate", info.End), new SqlParameter("@StudentID", info.StudentID));
+
+            List<GMRSession> classes = new List<GMRSession>();
+            while (await reader.ReadAsync())
+            {
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                classes.Add(temp);
+            }
+            return Ok(classes);
         }
     }
 }
