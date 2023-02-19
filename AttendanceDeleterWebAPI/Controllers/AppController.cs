@@ -16,7 +16,7 @@ namespace AttendanceWebAPI.Controllers
     public class AppController : ControllerBase
     {
         [HttpGet("GetTimeSlotIDs")]
-        public ActionResult<List<(int, DateTime, DateTime)>> GetTimeSlotIDs()
+        public ActionResult<List<TimeSlot>> GetTimeSlotIDs()
         {
             return Ok(Communicator.timeSlotMap);
         }
@@ -80,7 +80,6 @@ namespace AttendanceWebAPI.Controllers
 
             await Helper.CallStoredProcedure("SwapInstructor", new SqlParameter("@OldTeachingStationID", body.OldTeachingStationID), new SqlParameter("@NewTeachingStationID", body.NewTeachingStationID),
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
-
             return Ok();
         }
 

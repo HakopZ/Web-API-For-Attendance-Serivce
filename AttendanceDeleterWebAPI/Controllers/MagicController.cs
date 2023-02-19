@@ -47,7 +47,7 @@ namespace Test_2.Controllers
             return Ok();
         }
         [HttpPost("MakeTimeSlotMapper")]
-        public void MakeTimeSlotMapper(List<(int, DateTime, DateTime)> values)
+        public void MakeTimeSlotMapper([FromBody] List<TimeSlot> values)
         {
             Communicator.timeSlotMap = values;
         }

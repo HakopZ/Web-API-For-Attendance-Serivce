@@ -37,9 +37,9 @@ namespace Test_2
             List<int> timeSlots = new List<int>();
             foreach(var pairs in Communicator.timeSlotMap)
             {
-                if(pairs.start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.end.TimeOfDay)
+                if(pairs.Start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.End.TimeOfDay)
                 {
-                    timeSlots.Add(pairs.timeSlotID);
+                    timeSlots.Add(pairs.ID);
                 }
             }
             return timeSlots;
