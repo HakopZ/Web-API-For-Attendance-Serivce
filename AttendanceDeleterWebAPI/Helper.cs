@@ -30,6 +30,13 @@ namespace Test_2
             return reader;
         }
 
+        public static async Task<T> CallGetAPI(string address)
+        {
+            HttpResponseMessage httpResponse;
+            httpResponse = await Communicator.client.GetAsync(address);
+            httpResponse.EnsureSuccessStatusCode();
+            
+        }
 
         //might not be needed
         public static List<int> ToTimeSlot(this DateTime time)

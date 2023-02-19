@@ -23,15 +23,27 @@ namespace AttendanceWebAPI.Controllers
             return Ok(Communicator.timeSlotMap);
         }
 
+        [HttpGet("Session/GetStudentName")]
+        public ActionResult<string> GetStudentName(int id)
+        {
+            return Ok("");
+        }
+
+        [HttpGet("Session/GetInstructorName")]
+        public ActionResult<string> GetInstructorID(int id)
+        {
+            return Ok();
+        }
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
             var reader = await Helper.CallReader("GetAllClasses");
             
             List<GMRSession> sessions = new List<GMRSession>();
+            //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (int)reader[3]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (List<int>)reader[4]);
                 sessions.Add(temp);
             }
             return Ok(sessions);
@@ -42,19 +54,19 @@ namespace AttendanceWebAPI.Controllers
         {
             return Ok(Communicator.SessionUpdate);
         }
-        [HttpGet("Session/GetStatus")]
-        public async Task<ActionResult<List<GMRSession>>> GetCurrentSessions()
-        {
-            var reader = await Helper.CallReader("GetCurrentSessions");
+        //[HttpGet("Session/GetStatus")]
+        //public async Task<ActionResult<List<GMRSession>>> GetCurrentSessions()
+        //{
+        //    var reader = await Helper.CallReader("GetCurrentSessions");
 
-            List<GMRSession> sessions = new List<GMRSession>();
-            while (await reader.ReadAsync())
-            {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (int)reader[3]);
-                sessions.Add(temp);
-            }
-            return Ok(sessions);
-        }
+        //    List<GMRSession> sessions = new List<GMRSession>();
+        //    while (await reader.ReadAsync())
+        //    {
+        //        GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (int)reader[3]);
+        //        sessions.Add(temp);
+        //    }
+        //    return Ok(sessions);
+        //}
 
 
 
@@ -93,7 +105,7 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1],  (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
                 classes.Add(temp);
             }
             return Ok(classes);
@@ -109,7 +121,7 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
                 classes.Add(temp);
             }
             return Ok(classes);
@@ -129,7 +141,7 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
                 classes.Add(temp);
             }
             return Ok(classes);
