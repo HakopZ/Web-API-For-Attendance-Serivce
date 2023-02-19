@@ -24,10 +24,8 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
-
-            await Communicator.sqlConnection.OpenAsync();
-            SqlCommand cmd = new SqlCommand("GetAllClasses");
-            var reader = await cmd.ExecuteReaderAsync();
+            var reader = await Helper.CallReader("GetAllClasses");
+            
             List<GMRSession> sessions = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
@@ -45,10 +43,8 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/GetStatus")]
         public async Task<ActionResult<List<GMRSession>>> GetCurrentSessions()
         {
-            await Communicator.sqlConnection.OpenAsync();
-            SqlCommand cmd = new SqlCommand("GetCurrentSessions");
-            var reader = await cmd.ExecuteReaderAsync();
-            await Communicator.sqlConnection.CloseAsync();
+            var reader = await Helper.CallReader("GetCurrentSessions");
+
             List<GMRSession> sessions = new List<GMRSession>();
             while (await reader.ReadAsync())
             {

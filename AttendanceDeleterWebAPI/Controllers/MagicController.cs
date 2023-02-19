@@ -13,15 +13,37 @@ namespace Test_2.Controllers
     public class MagicController : ControllerBase
     {
         [HttpPost("MakeSchedule")]
-        public void MakeSchedule([FromBody] GMRSchedule schedule)
+        public async void MakeSchedule([FromBody] List<GMRSession> schedule)
         {
-            Communicator.Current_Schedule = schedule;
+            
+            foreach(var session in schedule)
+            {
+                await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", session.StationID), new SqlParameter("@TimeSlotID", session.TimeSlotID),
+                           new SqlParameter("@StationID", session.StationID), new SqlParameter("@InstructorID", session.InstructorID));
+            }
         }
 
         [HttpPatch("UpdateSchedule")]
         public async Task<ActionResult> UpdateSchedule([FromBody] UpdateScheduleInfo info)
         {
-            // var cmd = Helper.CallStoredProcedure("UpdateSchedule", new SqlParameter("@StudentID", ));
+            if (info.NewTimeSlotID == null)
+            {
+                if (info.InstructorID == null)
+                {
+                    await Helper.CallStoredProcedure("CancelSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeSlotID", info.TimeSlotID));
+                }
+                else
+                {
+                    await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeSlotID", info.TimeSlotID),
+                        new SqlParameter("@StationID", info.StationID), new SqlParameter("@InstructorID", info.InstructorID));
+                }
+            }
+            else
+            {
+                await Helper.CallStoredProcedure("MoveSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@OldTimeSlotID", info.TimeSlotID),
+                        new SqlParameter("@NewTimeSlotID", info.NewTimeSlotID), new SqlParameter("@StationID", info.StationID), new SqlParameter("@InstructorID", info.InstructorID));
+            }
+            Communicator.SessionUpdate = true;
             return Ok();
         }
         [HttpPost("MakeTimeSlotMapper")]

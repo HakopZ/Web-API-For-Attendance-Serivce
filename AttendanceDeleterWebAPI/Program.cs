@@ -1,4 +1,5 @@
 using System.Web.Http;
+using Test_2;
 
 namespace AttendanceWebAPI
 {
@@ -9,13 +10,20 @@ namespace AttendanceWebAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+            string MyAllowedSpecificOrigin = "_MyAllowedSpecificOrigins";
             // Add services to the container.
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowedSpecificOrigin,
+                    policy =>
+                    {
+                        policy.WithOrigins(Communicator.baseAddress, "http://localhost:3000/");
+                    });
+            });
             
             var app = builder.Build();
             
@@ -27,6 +35,8 @@ namespace AttendanceWebAPI
             }
             
             app.UseHttpsRedirection();
+ 
+            app.UseCors();
 
             app.UseAuthorization();
 

@@ -22,7 +22,8 @@ namespace AttendanceWebAPI.Controllers
             var returnVal = new SqlParameter("@DuplicateStationID", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
 
 
-            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@Username", enterInfo.AccountName), new SqlParameter("@Date", enterInfo.TimeOfRecord), returnVal);
+            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@Username", enterInfo.AccountName), 
+                new SqlParameter("@Date", enterInfo.TimeOfRecord), returnVal);
 
             if ((int)returnVal.Value != -1)
             {
@@ -37,7 +38,6 @@ namespace AttendanceWebAPI.Controllers
         public async Task<IActionResult> LogOff([FromBody] MonitorInfo exitInfo)
         {
             //eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID));
-
 
 
             if (exitInfo.TimeOfRecord == null)

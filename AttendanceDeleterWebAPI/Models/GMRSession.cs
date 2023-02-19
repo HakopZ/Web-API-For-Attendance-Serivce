@@ -17,6 +17,7 @@ namespace Test_2.ScheduleSetup
         public int InstructorID { get; set; }
 
         public DateOnly? Date { get; set; }
+
         public GMRSession(int studentID, int timeSlotId, int stationID, int instructorID, DateOnly? date = null)
         {
             StudentID = studentID;
