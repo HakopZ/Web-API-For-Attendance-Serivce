@@ -85,7 +85,7 @@ namespace AttendanceWebAPI.Controllers
         }
 
         [HttpGet("History/GetByDate")]
-        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate([FromBody] DateTime start, [FromBody] DateTime end)
+        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate(DateTime start,  DateTime end)
         {
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
 
@@ -117,6 +117,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("History/GetByStudentRecord")]
         public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
         {
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest();
