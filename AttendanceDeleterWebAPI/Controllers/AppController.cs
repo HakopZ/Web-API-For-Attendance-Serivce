@@ -14,9 +14,9 @@ namespace AttendanceWebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [EnableCors("AppPolicy")]
     public class AppController : ControllerBase
     {
-        [EnableCors("Policy1")]
         [HttpGet("GetTimeSlotIDs")]
         public ActionResult<List<TimeSlot>> GetTimeSlotIDs()
         {
