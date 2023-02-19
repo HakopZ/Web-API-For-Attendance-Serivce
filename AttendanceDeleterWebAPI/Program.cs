@@ -5,7 +5,7 @@ namespace AttendanceWebAPI
 {
     public class Program
     {
-        
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -23,20 +23,25 @@ namespace AttendanceWebAPI
                     {
                         policy.WithOrigins(Communicator.baseAddress, "http://localhost:3000/");
                     });
+                options.AddPolicy("Policy1",
+                    policy =>
+                    {
+                        policy.WithOrigins(Communicator.baseAddress, "http://localhost:3000/");
+                    });
             });
-            
+
             var app = builder.Build();
-            
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            
+
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseCors();
+            app.UseCors(MyAllowedSpecificOrigin);
 
             app.UseAuthorization();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace AttendanceWebAPI.Controllers
     [Route("[controller]")]
     public class AppController : ControllerBase
     {
+        [EnableCors("Policy1")]
         [HttpGet("GetTimeSlotIDs")]
         public ActionResult<List<TimeSlot>> GetTimeSlotIDs()
         {
