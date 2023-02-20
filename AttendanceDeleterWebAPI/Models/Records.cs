@@ -7,4 +7,10 @@ namespace Test_2.Models
     public record EventMessage(int StationID, string Message, TimeOnly Time);
 
     public record StatusInfo(List<Student> StudentsLoggedIn, List<GMRClass> Classes);
+
+    public record StudentInfo(int ID, string FirstName, string LastName);
+
+    public record InstructorInfo(int ID, string Name);
+
+    public record StationInfo(int ID, string Name, string ClassroomID);
 }

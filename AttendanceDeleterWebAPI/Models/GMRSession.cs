@@ -2,6 +2,13 @@
 
 namespace Test_2.ScheduleSetup
 {
+    public enum StudentStatus
+    {
+        Here,
+        NotHere,
+        Moved
+    }
+
     public class GMRSession
     {
         [Required]
@@ -10,24 +17,24 @@ namespace Test_2.ScheduleSetup
         [Required]
         public int TimeSlotID { get; set; }
 
-        [Required] 
-        public string ClassroomName { get; set; }
-
         [Required]
         public int StationID { get; set; }
 
         [Required]
         public List<int> InstructorID { get; set; }
 
+        [Required]
+        public StudentStatus Status { get; set; }
+
         public DateOnly? Date { get; set; }
 
-        public GMRSession(int studentID, int timeSlotId, string classroomName, int stationID, List<int> instructorID, DateOnly? date = null)
+        public GMRSession(int studentID, int timeSlotId, int stationID, List<int> instructorID, StudentStatus status, DateOnly? date = null)
         {
             StudentID = studentID;
             TimeSlotID = timeSlotId;
             StationID = stationID;
-            ClassroomName = classroomName;
             InstructorID = instructorID;
+            Status = status;
             Date = date;
         }
     }

@@ -17,36 +17,85 @@ namespace AttendanceWebAPI.Controllers
     [EnableCors("AppPolicy")]
     public class AppController : ControllerBase
     {
-        [HttpGet("GetTimeSlotIDs")]
-        public ActionResult<List<TimeSlot>> GetTimeSlotIDs()
+        [HttpGet("Session/GetTimeslotInfos")]
+        public ActionResult<List<TimeSlot>> GetTimeslotInfos()
         {
-            return Ok(Communicator.timeSlotMap);
+            List<TimeSlot> mockData = new List<TimeSlot>()
+            {
+                new TimeSlot(1, new DateTime(2023, 1, 21, 22, 45, 0), new DateTime(2023, 1, 22, 0, 0, 0)),
+                new TimeSlot(2, new DateTime(2023, 1, 21, 0, 15, 0), new DateTime(2023, 1, 21, 1, 30, 0)),
+                new TimeSlot(3, new DateTime(2023, 1, 21, 1, 45, 0), new DateTime(2023, 1, 21, 4, 15, 0))
+            };
+            return Ok(mockData);
+            //return Ok(Communicator.timeSlotMap);
         }
 
-        [HttpGet("Session/GetStudentName")]
-        public ActionResult<string> GetStudentName(int id)
+        [HttpGet("Session/GetStudentInfos")]
+        public ActionResult<List<StudentInfo>> GetStudentInfos()
         {
-            return Ok("");
+            List<StudentInfo> mockData = new List<StudentInfo>()
+            {
+                new StudentInfo(1, "Alice", "Allison"),
+                new StudentInfo(2, "Bob", "Bobson"),
+                new StudentInfo(3, "Charles", "Charleston"),
+                new StudentInfo(4, "Dennis", "Denizen"),
+                new StudentInfo(5, "Eddie", "Edison"),
+                new StudentInfo(6, "Francis", "Franciscan"),
+            };
+            return Ok(mockData);
         }
 
-        [HttpGet("Session/GetInstructorName")]
-        public ActionResult<string> GetInstructorID(int id)
+        [HttpGet("Session/GetInstructorInfos")]
+        public ActionResult<List<InstructorInfo>> GetInstructorInfos()
         {
-            return Ok();
+            List<InstructorInfo> mockData = new List<InstructorInfo>()
+            {
+                new InstructorInfo(1, "Edden"),
+                new InstructorInfo(2, "Lorenzo"),
+                new InstructorInfo(3, "Hakop"),
+                new InstructorInfo(4, "Stan")
+            };
+            return Ok(mockData);
         }
+
+        [HttpGet("Session/GetStationInfos")]
+        public ActionResult<List<StationInfo>> GetStationInfos()
+        {
+            List<StationInfo> mockData = new List<StationInfo>()
+            {
+                new StationInfo(1, "118.1.1", "Room 118"),
+                new StationInfo(2, "118.1.2", "Room 118"),
+                new StationInfo(3, "118.1.3", "Room 118"),
+                new StationInfo(4, "118.2.1", "Room 118"),
+                new StationInfo(5, "119.2.2", "Room 119"),
+                new StationInfo(6, "119.2.3", "Room 119"),
+            };
+            return Ok(mockData);
+        }
+
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
-            var reader = await Helper.CallReader("GetAllClasses");
-            
+            /*var reader = await Helper.CallReader("GetAllClasses");
+
             List<GMRSession> sessions = new List<GMRSession>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (List<int>)reader[4]);
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (List<int>)reader[3]);
                 sessions.Add(temp);
-            }
-            return Ok(sessions);
+            }*/
+            List<GMRSession> mockData = new List<GMRSession>()
+            {
+                new GMRSession(1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
+                new GMRSession(2, 1, 2, new List<int>(){ 1,2 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
+                new GMRSession(3, 1, 3, new List<int>(){ 3 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
+                new GMRSession(4, 2, 4, new List<int>(){ 3 }, StudentStatus.Moved, new DateOnly(2023, 2, 19)),
+                new GMRSession(5, 3, 5, new List<int>(){ 4 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
+                new GMRSession(6, 3, 6, new List<int>(){ 4 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
+                new GMRSession(7, 4, 7, new List<int>(){ 5 }, StudentStatus.Here, new DateOnly(2023, 2, 19))
+            };
+            return Ok(mockData);
         }
 
         [HttpGet("Session/CheckStatus")]
@@ -98,15 +147,16 @@ namespace AttendanceWebAPI.Controllers
         }
 
         [HttpGet("History/GetByDate")]
-        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate(DateTime start,  DateTime end)
+        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate(DateTime start, DateTime end)
         {
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
 
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1],  (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                classes.Add(temp);
+                throw new NotImplementedException();
+                // GMRSession temp = new GMRSession((int)reader[0], (int)reader[1],  (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                // classes.Add(temp);
             }
             return Ok(classes);
         }
@@ -121,8 +171,9 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                classes.Add(temp);
+                throw new NotImplementedException();
+                // GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                // classes.Add(temp);
             }
             return Ok(classes);
         }
@@ -130,7 +181,7 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("History/GetByStudentRecord")]
         public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
         {
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -141,8 +192,9 @@ namespace AttendanceWebAPI.Controllers
             List<GMRSession> classes = new List<GMRSession>();
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                classes.Add(temp);
+                throw new NotImplementedException();
+                //GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
+                //classes.Add(temp);
             }
             return Ok(classes);
         }

@@ -30,12 +30,12 @@ namespace Test_2
             return reader;
         }
 
-        public static async Task<T> CallGetAPI(string address)
+        public static async Task<T> CallGetAPI<T>(string address)
         {
             HttpResponseMessage httpResponse;
             httpResponse = await Communicator.client.GetAsync(address);
             httpResponse.EnsureSuccessStatusCode();
-            
+            throw new NotImplementedException();
         }
 
         //might not be needed
