@@ -31,29 +31,29 @@ namespace AttendanceWebAPI.Controllers
         }
 
         [HttpGet("Session/GetStudentInfos")]
-        public ActionResult<List<StudentInfo>> GetStudentInfos()
+        public ActionResult<List<Student>> GetStudentInfos()
         {
-            List<StudentInfo> mockData = new List<StudentInfo>()
+            List<Student> mockData = new List<Student>()
             {
-                new StudentInfo(1, "Alice", "Allison"),
-                new StudentInfo(2, "Bob", "Bobson"),
-                new StudentInfo(3, "Charles", "Charleston"),
-                new StudentInfo(4, "Dennis", "Denizen"),
-                new StudentInfo(5, "Eddie", "Edison"),
-                new StudentInfo(6, "Francis", "Franciscan"),
+                new Student(1, "Alice", "Allison"),
+                new Student(2, "Bob", "Bobson"),
+                new Student(3, "Charles", "Charleston"),
+                new Student(4, "Dennis", "Denizen"),
+                new Student(5, "Eddie", "Edison"),
+                new Student(6, "Francis", "Franciscan"),
             };
             return Ok(mockData);
         }
 
         [HttpGet("Session/GetInstructorInfos")]
-        public ActionResult<List<InstructorInfo>> GetInstructorInfos()
+        public ActionResult<List<Instructor>> GetInstructorInfos()
         {
-            List<InstructorInfo> mockData = new List<InstructorInfo>()
+            List<Instructor> mockData = new List<Instructor>()
             {
-                new InstructorInfo(1, "Edden"),
-                new InstructorInfo(2, "Lorenzo"),
-                new InstructorInfo(3, "Hakop"),
-                new InstructorInfo(4, "Stan")
+                new Instructor(1, "Edden", "Lee"),
+                new Instructor(2, "Lorenzo", "Smith"),
+                new Instructor(3, "Hakop", "John"),
+                new Instructor(4, "Stan", "Boss")
             };
             return Ok(mockData);
         }
@@ -76,13 +76,21 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
-            /*var reader = await Helper.CallReader("GetAllClasses");
+            /*
+            var reader = await Helper.CallReader("GetAllClasses");
 
             List<GMRSession> sessions = new List<GMRSession>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
             while (await reader.ReadAsync())
             {
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], (List<int>)reader[3]);
+                var instructorReader = await Helper.CallReader("GetInstructorsWithSessionID", new SqlParameter("@SessionID", (int)reader[3]));
+                List<int> instructors = new List<int>();
+                while (await instructorReader.ReadAsync())
+                {
+                    instructors.Add((int)instructorReader[0]);
+                }
+                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)reader[4]);
+
                 sessions.Add(temp);
             }*/
             List<GMRSession> mockData = new List<GMRSession>()

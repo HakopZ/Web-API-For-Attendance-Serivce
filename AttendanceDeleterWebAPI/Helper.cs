@@ -35,8 +35,9 @@ namespace Test_2
             HttpResponseMessage httpResponse;
             httpResponse = await Communicator.client.GetAsync(address);
             httpResponse.EnsureSuccessStatusCode();
-            throw new NotImplementedException();
+            return await httpResponse.Content.ReadAsAsync<T>();
         }
+        
 
         //might not be needed
         public static List<int> ToTimeSlot(this DateTime time)

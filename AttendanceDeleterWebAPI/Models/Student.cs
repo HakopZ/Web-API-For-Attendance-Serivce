@@ -19,25 +19,21 @@ namespace Test_2.ScheduleSetup
         [Required]
         public int ID { get; }
         
-        /*public Student(string firstName, string lastName, string stationID, int id, string username)
+        public Student(int id, string firstName, string lastName, string stationID, string username)
         {
             FirstName = firstName;
             LastName = lastName;
             StationID = stationID;
             ID = id;
-            CurrentApp = "";
             Username = username;
         }
 
-        public bool LogIn(string station)
+        public Student(int id, string firstName, string lastName)
         {
-            Attended = true;
-            return StationID == station;
+            FirstName = firstName;
+            LastName = lastName;
+            ID = id;
+            Username = firstName + "." + lastName;
         }
-
-        public void LogOut()
-        {
-            Attended = false;
-        }*/
     }
 }

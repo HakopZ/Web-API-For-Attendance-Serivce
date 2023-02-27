@@ -11,8 +11,14 @@ namespace Test_2.Models
         public string LastName { get; set; }
 
         [Required]
-        public int ID { get; }
+        public int ID { get; set; }
 
+        public Instructor(int id, string firstName, string lastName)
+        {
+            ID = id;
+            FirstName = firstName;
+            LastName = lastName;
+        }
         
     }
 }
