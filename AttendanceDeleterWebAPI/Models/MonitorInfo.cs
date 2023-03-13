@@ -16,5 +16,13 @@ namespace Test_2.Models
         
 
         public DateTime? TimeOfRecord { get; set; }
+        public MonitorInfo(int stationID, string accountName, string? foregroundWindowTitle, string? currentFileName, DateTime? timeOfRecord)
+        {
+            StationID = stationID;
+            AccountName = accountName;
+            ForegroundWindowTitle = foregroundWindowTitle;
+            CurrentFileName = currentFileName;
+            TimeOfRecord = timeOfRecord;
+        }
     }
 }

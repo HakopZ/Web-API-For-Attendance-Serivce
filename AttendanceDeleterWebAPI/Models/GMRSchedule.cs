@@ -14,6 +14,12 @@ namespace Test_2.ScheduleSetup
 
         [Required]
         public DateOnly Date { get; private set; }
-        
+
+        public GMRSchedule(int iD, List<GMRSession> classes, DateOnly date)
+        {
+            ID = iD;
+            Classes = classes;
+            Date = date;
+        }
     }
 }

@@ -12,5 +12,4 @@ namespace Test_2.Models
 
     public record InstructorInfo(int ID, string Name);
 
-    public record StationInfo(int ID, string Name, string ClassroomID);
 }

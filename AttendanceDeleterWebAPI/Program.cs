@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 using System.Web.Http;
 using Test_2;
 
@@ -23,8 +26,17 @@ namespace AttendanceWebAPI
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                     });
+                
             });
-
+            /*
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity
+            });
+           */
+            //builder.Services.AddAuthentication(I)
+            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+           
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -33,14 +45,13 @@ namespace AttendanceWebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AppPolicy");
             app.UseResponseCaching();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

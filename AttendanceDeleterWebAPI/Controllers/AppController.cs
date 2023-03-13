@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Linq;
@@ -12,14 +13,17 @@ using Test_2.ScheduleSetup;
 
 namespace AttendanceWebAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     [EnableCors("AppPolicy")]
     public class AppController : ControllerBase
     {
+        private readonly UserManager<IdentityUser> _userManager;
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<TimeSlot>> GetTimeslotInfos()
         {
+            var x = HttpContext.User.Identity;
             List<TimeSlot> mockData = new List<TimeSlot>()
             {
                 new TimeSlot(1, new DateTime(2023, 1, 21, 22, 45, 0), new DateTime(2023, 1, 22, 0, 0, 0)),

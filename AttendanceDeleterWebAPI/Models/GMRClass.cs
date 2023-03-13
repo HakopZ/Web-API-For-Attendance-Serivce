@@ -13,14 +13,14 @@ namespace Test_2.Models
 
         public List<Student> Students { get; set; }
 
-        public Instructor ClassInstructor { get; set; }
+        public List<Instructor> ClassInstructors { get; set; }
 
         //might be pointless constructor
 
-        /*public GMRClass(List<Instructor> instructors, string name, int timeSlotID, int classID)
+        public GMRClass(List<Instructor> instructors, string name, int timeSlotID, int classID)
         {
             Students = new List<Student>();
-            Instructors = instructors;
+            ClassInstructors = instructors;
             ID = classID;
             Name = name;
 
@@ -28,10 +28,10 @@ namespace Test_2.Models
         public GMRClass(List<Instructor> instructors, List<Student> students, string name, int timeSlotID, int classID)
         {
             Students = students;
-            Instructors = instructors;
+            ClassInstructors = instructors;
             Name = name;
             ID = classID;
-        }*/
+        }
 
 
     }
