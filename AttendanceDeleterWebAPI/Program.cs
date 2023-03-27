@@ -22,7 +22,7 @@ namespace AttendanceWebAPI
                 options.AddPolicy("AppPolicy",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
+                        policy.WithOrigins("http://localhost/*", "https://localhost/*") //this does not work for everyone
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                     });
