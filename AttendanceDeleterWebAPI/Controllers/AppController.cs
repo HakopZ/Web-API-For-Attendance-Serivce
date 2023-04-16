@@ -20,6 +20,7 @@ namespace AttendanceWebAPI.Controllers
     public class AppController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+       
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<TimeSlot>> GetTimeslotInfos()
         {
@@ -32,6 +33,14 @@ namespace AttendanceWebAPI.Controllers
             };
             return Ok(mockData);
             //return Ok(Communicator.timeSlotMap);
+        }
+
+        [HttpGet("Session/Test")]
+        public ActionResult<string> Test()
+        {
+
+            var x = HttpContext.User.Identity;
+            return Ok("Hello");
         }
 
         [HttpGet("Session/GetStudentInfos")]

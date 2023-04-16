@@ -74,7 +74,7 @@ namespace TestWebAPIWithConsole
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                var response = await GetTimeSlotAsync(baseAddress + "App/Session/GetTimeslotInfos");
+                var response = await GetTimeSlotAsync(baseAddress + "SlackBot/CheckConnection?challenge=Hello");
                 if (response != null)
                 {
                     ;

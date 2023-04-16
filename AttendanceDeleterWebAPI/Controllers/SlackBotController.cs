@@ -13,6 +13,7 @@ namespace Test_2.Controllers
         [HttpGet("CheckConnection")]
         public ActionResult<string> CheckConnection(string challenge)
         {
+            var x = HttpContext.User.Identity;
             return Ok(challenge);
         }
 
