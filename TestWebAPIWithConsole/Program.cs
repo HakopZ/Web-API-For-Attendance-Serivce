@@ -47,7 +47,7 @@ namespace TestWebAPIWithConsole
         static HttpClient client = new HttpClient();
 
 
-        static string baseAddress = "http://GMR-124-2-1:5247/";
+        static string baseAddress = "http://192.168.2.114:5247/";
 
         static async Task<WeatherForecast> SendWeather(WeatherForecast weather)
         {
