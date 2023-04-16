@@ -15,7 +15,7 @@ namespace AttendanceWebAPI
             var builder = WebApplication.CreateBuilder(args);
             
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors(options =>
@@ -23,7 +23,7 @@ namespace AttendanceWebAPI
                 options.AddPolicy("AppPolicy",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
+                        policy.AllowAnyOrigin() //this does not work for everyone
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                     });

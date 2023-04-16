@@ -16,6 +16,22 @@ using System.Net.Http.Headers;
 
 namespace TestWebAPIWithConsole
 {
+
+    public class TimeSlot
+    {
+        public int ID { get; set; }
+
+        public DateTime Start { get; set; }
+
+        public DateTime End { get; set; }
+
+        public TimeSlot(int id, DateTime start, DateTime end)
+        {
+            ID = id;
+            Start = start;
+            End = end;
+        }
+    }
     public class WeatherForecast
     {
         public DateTime Date { get; set; }
@@ -31,7 +47,7 @@ namespace TestWebAPIWithConsole
         static HttpClient client = new HttpClient();
 
 
-        static string baseAddress = "https://localhost:7247/";
+        static string baseAddress = "http://GMR-124-2-1:5247/";
 
         static async Task<WeatherForecast> SendWeather(WeatherForecast weather)
         {
@@ -40,16 +56,17 @@ namespace TestWebAPIWithConsole
 
             return await response.Content.ReadAsAsync<WeatherForecast>();
         }
-        static async Task<List<WeatherForecast>> GetWeatherAsync(string path)
+        static async Task<List<TimeSlot>> GetTimeSlotAsync(string path)
         {
-            List<WeatherForecast> temp = new List<WeatherForecast>();
+            List<TimeSlot> temp = new List<TimeSlot>();
             HttpResponseMessage response = await client.GetAsync(path);
             if (response.IsSuccessStatusCode)
             {
-                temp = await response.Content.ReadAsAsync<List<WeatherForecast>>();
+                temp = await response.Content.ReadAsAsync<List<TimeSlot>>();
             }
             return temp;
         }
+        
         static async Task RunAsync()
         {
                 // Update port # in the following line.
@@ -57,8 +74,7 @@ namespace TestWebAPIWithConsole
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                await SendWeather(new WeatherForecast() { Summary = "Cold", TemperatureC = 0, Date = DateTime.Now});
-                var response = await GetWeatherAsync(baseAddress + "weatherForecast");
+                var response = await GetTimeSlotAsync(baseAddress + "App/Session/GetTimeslotInfos");
                 if (response != null)
                 {
                     ;
