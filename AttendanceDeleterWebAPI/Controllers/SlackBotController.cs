@@ -10,7 +10,7 @@ namespace Test_2.Controllers
     [ApiController]
     public class SlackBotController : ControllerBase
     {
-        [HttpGet("SlackBot/CheckConnection")]
+        [HttpGet("CheckConnection")]
         public ActionResult<string> CheckConnection(string challenge)
         {
             return Ok(challenge);
@@ -18,7 +18,7 @@ namespace Test_2.Controllers
 
 
         //Needs to call the SQL most likely (discuss)
-        [HttpPatch("SlackBot/UpdateAttendance")]
+        [HttpPatch("UpdateAttendance")]
         public void UpdateStudentAttendance([FromBody] StudentAttendance body)
         {
                 
@@ -27,7 +27,7 @@ namespace Test_2.Controllers
 
         //NOT DONE YET BECAUSE WE NEED TO ADD ANOTHER PARAMETER
         //NEED TO MOVE THE STUDENT STILL
-        [HttpPatch("SlackBot/Location")]
+        [HttpPatch("Location")]
         public ActionResult UpdateStudentLocation([FromBody] StudentLocation body)
         {
             return Ok();
