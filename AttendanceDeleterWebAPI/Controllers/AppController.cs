@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Principal;
 using System.Web.Http.Results;
 using Test_2;
+using Test_2.Filters;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
 
@@ -20,7 +22,7 @@ namespace AttendanceWebAPI.Controllers
     public class AppController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-       
+
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<TimeSlot>> GetTimeslotInfos()
         {
@@ -35,10 +37,13 @@ namespace AttendanceWebAPI.Controllers
             //return Ok(Communicator.timeSlotMap);
         }
 
+
+        [JwtAuthentication]
         [HttpGet("Session/Test")]
         public ActionResult<string> Test()
         {
-
+            var princ = Thread.CurrentPrincipal;
+            var domainName = Request.Host;
             var x = HttpContext.User.Identity;
             return Ok("Hello");
         }

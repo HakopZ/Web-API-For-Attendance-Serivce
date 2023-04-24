@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Sockets;
 using System.Web.Http;
 using Test_2;
+using Test_2.Filters;
 
 namespace AttendanceWebAPI
 {
@@ -36,10 +37,12 @@ namespace AttendanceWebAPI
             });
            */
             //builder.Services.AddAuthentication(I)
-            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-           
+            /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(options =>
+            {
+                options.EnableLdap("GMR.local");
+            });*/
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
