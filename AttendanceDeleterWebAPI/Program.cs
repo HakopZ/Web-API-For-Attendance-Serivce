@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Sockets;
+using System.Text;
 using System.Web.Http;
 using Test_2;
 using Test_2.Filters;
@@ -14,7 +17,7 @@ namespace AttendanceWebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
@@ -28,7 +31,20 @@ namespace AttendanceWebAPI
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                     });
-                
+
+            });
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "GMR",
+                    ValidAudience = "MonitorApp",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtManager.Secret))
+                };
             });
             /*
             builder.Services.Configure<IdentityOptions>(options =>
@@ -42,7 +58,7 @@ namespace AttendanceWebAPI
                 options.EnableLdap("GMR.local");
             });*/
             var app = builder.Build();
-            
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
