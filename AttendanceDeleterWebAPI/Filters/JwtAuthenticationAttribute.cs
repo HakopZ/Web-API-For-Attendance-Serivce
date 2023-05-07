@@ -27,7 +27,7 @@ namespace Test_2.Filters
     }
     public class JwtAuthenticationAttribute : Attribute, IAuthenticationFilter
     {
-        public bool AllowMultiple => throw new NotImplementedException();
+        public bool AllowMultiple => true;
 
         public async Task AuthenticateAsync(HttpAuthenticationContext context, CancellationToken cancellationToken)
         {

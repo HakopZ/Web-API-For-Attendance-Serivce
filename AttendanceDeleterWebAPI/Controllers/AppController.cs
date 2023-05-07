@@ -38,7 +38,8 @@ namespace AttendanceWebAPI.Controllers
         }
 
 
-        [JwtAuthentication]
+        //[JwtAuthentication]
+
         [HttpGet("Session/Test")]
         public ActionResult<string> Test()
         {

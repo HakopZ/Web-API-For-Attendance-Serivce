@@ -12,12 +12,12 @@ namespace AttendanceWebAPI
 {
     public class JwtManager
     {
-        public static string Secret = "TESTKEY";
+        public static string Secret = "This is a sample key - please don't use in production environment.'";
 
-        public static string GenerateToken(string username, int expireMinutes = 20)
+        public static string GenerateToken(string username, int expireMinutes = 60)
         {
             
-            var symmetricKey = Convert.FromBase64String(Secret);
+            var symmetricKey = Encoding.ASCII.GetBytes(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var now = DateTime.UtcNow;
@@ -25,11 +25,14 @@ namespace AttendanceWebAPI
             {
                 Subject = new ClaimsIdentity(new[]
                         {
+                        
                             new Claim(ClaimTypes.Name, username)
                         }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
-
+                Issuer = "GMR",
+                Audience = "MonitorApp",
+                
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey), SecurityAlgorithms.HmacSha256Signature)
             };
 
