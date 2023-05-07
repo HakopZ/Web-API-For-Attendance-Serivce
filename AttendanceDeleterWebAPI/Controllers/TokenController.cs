@@ -17,19 +17,19 @@ namespace Test_2.Controllers
     [EnableCors("AppPolicy")]
     public class TokenController : ControllerBase
     {
-        [Microsoft.AspNetCore.Mvc.HttpGet("GetToken")]
-        public string GetToken(string username, string password)
+        [Microsoft.AspNetCore.Mvc.HttpPost("GetToken")]
+        public string GetToken([Microsoft.AspNetCore.Mvc.FromBody] User user)
         {
-            if(CheckUser(username, password))
+            if(CheckUser(user.Username, user.Password))
             {
-                return JwtManager.GenerateToken(username);
+                return JwtManager.GenerateToken(user.Username);
             }
             throw new HttpResponseException(System.Net.HttpStatusCode.Unauthorized);
         }
 
         private bool CheckUser(string username, string password)
         {
-            if(username == "GMR" && password == "GreatMinds217")
+            if(username.ToLower() == "gmr" && password == "GreatMinds217")
             {
                 return true;
             }
