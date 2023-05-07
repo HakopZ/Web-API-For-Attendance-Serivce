@@ -12,12 +12,12 @@ namespace AttendanceWebAPI
 {
     public class JwtManager
     {
-        public static string Secret = "This is a sample key - please don't use in production environment.'";
+        public static string Secret = "db3OIsj+BXE9NZDy0t8W3TcNekrF+2d/1sFnWG4HnV8TZY30iTOdtVWJG8abWvB1GlOgJuQZdcF2Luqm/hccMw==";
 
         public static string GenerateToken(string username, int expireMinutes = 60)
         {
             
-            var symmetricKey = Encoding.ASCII.GetBytes(Secret);
+            var symmetricKey = Convert.FromBase64String(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var now = DateTime.UtcNow;

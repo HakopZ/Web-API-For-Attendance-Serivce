@@ -76,7 +76,7 @@ namespace AttendanceWebAPI
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = "GMR",
                     ValidAudience = "MonitorApp",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("This is a sample key - please don't use in production environment.'"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
             });
             builder.Services.AddAuthorization();
