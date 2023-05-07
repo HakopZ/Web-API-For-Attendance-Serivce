@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -60,12 +61,7 @@ namespace AttendanceWebAPI
                     });
 
             });
-            builder.Services.AddAuthentication(o =>
-            {
-                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -78,21 +74,22 @@ namespace AttendanceWebAPI
                     ValidAudience = "MonitorApp",
                     IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
-            });
+            }).AddNegotiate();
             builder.Services.AddAuthorization();
-            /*
-            builder.Services.Configure<IdentityOptions>(options =>
-            {
-                options.ClaimsIdentity
-            });
-           */
-            //builder.Services.AddAuthentication(I)
-            /*builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(options =>
-            {
-                options.EnableLdap("GMR.local");
-            });*/
-            var app = builder.Build();
 
+            //builder.Services.Configure<IdentityOptions>(options =>
+            //{
+            //    options.ClaimsIdentity
+            //});
+
+            //builder.Services.AddAuthentication(I)
+            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(options =>
+            //{
+            //    options.PersistKerberosCredentials = true;
+            //});
+            var app = builder.Build();
+            //List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
+            //app.UseMiddleware<DomainMiddleWare>(allowedDomains);
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{

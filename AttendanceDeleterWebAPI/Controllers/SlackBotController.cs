@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using System.Web;
 using Test_2.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Test_2.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class SlackBotController : ControllerBase
@@ -13,7 +16,7 @@ namespace Test_2.Controllers
         [HttpGet("CheckConnection")]
         public ActionResult<string> CheckConnection(string challenge)
         {
-            var x = HttpContext.User.Identity;
+            var x = Request.GetDisplayUrl;
             return Ok(challenge);
         }
 
