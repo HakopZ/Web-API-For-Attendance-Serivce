@@ -2,7 +2,7 @@
 
 namespace Test_2.Models
 {
-    public class TimeSlot
+    public class Timeslot
     {
         [Required]
         public int ID { get; set; }
@@ -13,7 +13,7 @@ namespace Test_2.Models
         [Required]
         public DateTime End { get; set; }
 
-        public TimeSlot(int id, DateTime start, DateTime end)
+        public Timeslot(int id, DateTime start, DateTime end)
         {
             ID = id;
             Start = start;

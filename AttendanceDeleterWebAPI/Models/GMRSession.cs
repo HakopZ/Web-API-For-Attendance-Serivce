@@ -15,25 +15,25 @@ namespace Test_2.ScheduleSetup
         public int StudentID { get; set; }
         
         [Required]
-        public int TimeSlotID { get; set; }
+        public int TimeslotID { get; set; }
 
         [Required]
         public int StationID { get; set; }
 
         [Required]
-        public List<int> InstructorID { get; set; }
+        public List<int> InstructorIDs { get; set; }
 
         [Required]
         public StudentStatus Status { get; set; }
 
-        public DateOnly? Date { get; set; }
+        public DateTime Date { get; set; }
 
-        public GMRSession(int studentID, int timeSlotId, int stationID, List<int> instructorID, StudentStatus status, DateOnly? date = null)
+        public GMRSession(int studentID, int timeslotId, int stationID, List<int> instructorIDs, StudentStatus status, DateTime date)
         {
             StudentID = studentID;
-            TimeSlotID = timeSlotId;
+            TimeslotID = timeslotId;
             StationID = stationID;
-            InstructorID = instructorID;
+            InstructorIDs = instructorIDs;
             Status = status;
             Date = date;
         }
