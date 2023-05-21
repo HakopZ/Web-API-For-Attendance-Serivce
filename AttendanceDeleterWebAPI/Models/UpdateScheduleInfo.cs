@@ -8,12 +8,12 @@ namespace Test_2.Models
         public int StudentID { get; set; }
         
         [Required]
-        public int? TimeSlotID { get; set; } 
+        public int? TimeslotID { get; set; } 
         
         public int? StationID { get; set; }  
         
         public int? InstructorID { get; set; }
         
-        public int? NewTimeSlotID { get; set; }
+        public int? NewTimeslotID { get; set; }
     }
 }

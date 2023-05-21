@@ -40,17 +40,17 @@ namespace Test_2
         
 
         //might not be needed
-        public static List<int> ToTimeSlot(this DateTime time)
+        public static List<int> ToTimeslot(this DateTime time)
         {
-            List<int> timeSlots = new List<int>();
-            foreach(var pairs in Communicator.timeSlotMap)
+            List<int> timeslots = new List<int>();
+            foreach(var pairs in Communicator.timeslotMap)
             {
                 if(pairs.Start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.End.TimeOfDay)
                 {
-                    timeSlots.Add(pairs.ID);
+                    timeslots.Add(pairs.ID);
                 }
             }
-            return timeSlots;
+            return timeslots;
         }
 
 

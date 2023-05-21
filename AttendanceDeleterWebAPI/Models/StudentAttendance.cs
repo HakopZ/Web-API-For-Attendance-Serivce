@@ -8,7 +8,7 @@ namespace Test_2.Models
         public int StudentID { get; set; }
 
         [Required]
-        public int TimeSlotID { get; set; }
+        public int TimeslotID { get; set; }
 
         [Required]
         public bool Status { get; set; }

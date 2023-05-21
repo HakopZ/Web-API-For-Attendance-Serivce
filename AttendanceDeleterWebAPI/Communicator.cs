@@ -10,7 +10,7 @@ namespace Test_2
         static string connectionString = "";
         public static bool SessionUpdate = false;
         public static GMRSchedule? Current_Schedule { get; set; }
-        public static List<TimeSlot> timeSlotMap = new List<TimeSlot>();
+        public static List<Timeslot> timeslotMap = new List<Timeslot>();
         public static SqlConnection sqlConnection = new SqlConnection(connectionString);
         public static HttpClient client = new HttpClient();
         public static Queue<EventMessage> eventMessages= new Queue<EventMessage>();

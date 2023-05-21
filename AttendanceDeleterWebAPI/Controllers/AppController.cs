@@ -25,17 +25,17 @@ namespace AttendanceWebAPI.Controllers
         private readonly UserManager<IdentityUser> _userManager;
 
         [HttpGet("Session/GetTimeslotInfos")]
-        public ActionResult<List<TimeSlot>> GetTimeslotInfos()
+        public ActionResult<List<Timeslot>> GetTimeslotInfos()
         {
             var x = HttpContext.User.Identity;
-            List<TimeSlot> mockData = new List<TimeSlot>()
+            List<Timeslot> mockData = new List<Timeslot>()
             {
-                new TimeSlot(1, new DateTime(2023, 1, 21, 22, 45, 0), new DateTime(2023, 1, 22, 0, 0, 0)),
-                new TimeSlot(2, new DateTime(2023, 1, 21, 0, 15, 0), new DateTime(2023, 1, 21, 1, 30, 0)),
-                new TimeSlot(3, new DateTime(2023, 1, 21, 1, 45, 0), new DateTime(2023, 1, 21, 4, 15, 0))
+                new Timeslot(1, new DateTime(2023, 1, 21, 22, 45, 0), new DateTime(2023, 1, 22, 0, 0, 0)),
+                new Timeslot(2, new DateTime(2023, 1, 21, 0, 15, 0), new DateTime(2023, 1, 21, 1, 30, 0)),
+                new Timeslot(3, new DateTime(2023, 1, 21, 1, 45, 0), new DateTime(2023, 1, 21, 4, 15, 0))
             };
             return Ok(mockData);
-            //return Ok(Communicator.timeSlotMap);
+            //return Ok(Communicator.timeslotMap);
         }
 
 

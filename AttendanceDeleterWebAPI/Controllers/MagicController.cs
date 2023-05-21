@@ -18,8 +18,8 @@ namespace Test_2.Controllers
             
             foreach(var session in schedule)
             {
-                await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", session.StationID), new SqlParameter("@TimeSlotID", session.TimeSlotID),
-                           new SqlParameter("@StationID", session.StationID), new SqlParameter("@InstructorID", session.InstructorID));
+                await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", session.StationID), new SqlParameter("@TimeslotID", session.TimeslotID),
+                           new SqlParameter("@StationID", session.StationID), new SqlParameter("@InstructorID", session.InstructorIDs));
             }
         }
 
@@ -28,30 +28,30 @@ namespace Test_2.Controllers
         [HttpPatch("UpdateSchedule")]
         public async Task<ActionResult> UpdateSchedule([FromBody] UpdateScheduleInfo info)
         {
-            if (info.NewTimeSlotID == null)
+            if (info.NewTimeslotID == null)
             {
                 if (info.InstructorID == null)
                 {
-                    await Helper.CallStoredProcedure("CancelSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeSlotID", info.TimeSlotID));
+                    await Helper.CallStoredProcedure("CancelSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeslotID", info.TimeslotID));
                 }
                 else
                 {
-                    await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeSlotID", info.TimeSlotID),
+                    await Helper.CallStoredProcedure("CreateSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@TimeslotID", info.TimeslotID),
                         new SqlParameter("@StationID", info.StationID), new SqlParameter("@InstructorID", info.InstructorID));
                 }
             }
             else
             {
-                await Helper.CallStoredProcedure("MoveSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@OldTimeSlotID", info.TimeSlotID),
-                        new SqlParameter("@NewTimeSlotID", info.NewTimeSlotID), new SqlParameter("@StationID", info.StationID), new SqlParameter("@InstructorID", info.InstructorID));
+                await Helper.CallStoredProcedure("MoveSession", new SqlParameter("@StudentID", info.StudentID), new SqlParameter("@OldTimeslotID", info.TimeslotID),
+                        new SqlParameter("@NewTimeslotID", info.NewTimeslotID), new SqlParameter("@StationID", info.StationID), new SqlParameter("@InstructorID", info.InstructorID));
             }
             Communicator.SessionUpdate = true;
             return Ok();
         }
-        [HttpPost("MakeTimeSlotMapper")]
-        public void MakeTimeSlotMapper([FromBody] List<TimeSlot> values)
+        [HttpPost("MakeTimeslotMapper")]
+        public void MakeTimeslotMapper([FromBody] List<Timeslot> values)
         {
-            Communicator.timeSlotMap = values;
+            Communicator.timeslotMap = values;
         }
 
         //constantly running task that checks for schedule changes

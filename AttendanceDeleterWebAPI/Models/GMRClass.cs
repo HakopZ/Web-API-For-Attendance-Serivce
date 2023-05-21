@@ -17,7 +17,7 @@ namespace Test_2.Models
 
         //might be pointless constructor
 
-        public GMRClass(List<Instructor> instructors, string name, int timeSlotID, int classID)
+        public GMRClass(List<Instructor> instructors, string name, int timeslotID, int classID)
         {
             Students = new List<Student>();
             ClassInstructors = instructors;
@@ -25,7 +25,7 @@ namespace Test_2.Models
             Name = name;
 
         }
-        public GMRClass(List<Instructor> instructors, List<Student> students, string name, int timeSlotID, int classID)
+        public GMRClass(List<Instructor> instructors, List<Student> students, string name, int timeslotID, int classID)
         {
             Students = students;
             ClassInstructors = instructors;
