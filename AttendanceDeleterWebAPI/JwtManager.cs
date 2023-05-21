@@ -30,7 +30,7 @@ namespace AttendanceWebAPI
                         }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
-                Issuer = "GMR",
+                Issuer = "gmr",
                 Audience = "MonitorApp",
                 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey), SecurityAlgorithms.HmacSha256Signature)

@@ -1,21 +1,84 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
 using System.Data.SqlClient;
+using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices.Protocols;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Web.Http;
 using Test_2;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
+using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPatchAttribute = Microsoft.AspNetCore.Mvc.HttpPatchAttribute;
 
 namespace AttendanceWebAPI.Controllers
 {
+    public class RestrictDomainAttribute : Attribute, IAuthorizationFilter
+    {
+        public IEnumerable<string> AllowedHosts { get; }
+
+        public RestrictDomainAttribute(params string[] allowedHosts) => AllowedHosts = allowedHosts;
+
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            //  Get host from the request and check if it's in the enumeration of allowed hosts
+            string host = context.HttpContext.Request.Host.Host;
+            if (!AllowedHosts.Contains(host, StringComparer.OrdinalIgnoreCase))
+            {
+                
+                //  Request came from an authorized host, return bad request
+                context.Result = new BadRequestObjectResult("Host is not allowed");
+            }
+        }
+    }
     [ApiController]
-    [Route("[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("[controller]")]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
         //Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
         public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         //might be a post call discuss later
+
+
+        [HttpGet("Test")]
+        //[RestrictDomain("localhost", "GMR.local")]
+        public async Task<IActionResult> Test()
+        {
+            
+           // var check = Security.IsInGroup(User, "Admin");//--
+
+            //var l = Request.HttpContext.Connection.RemoteIpAddress;
+            
+            
+            //IPHostEntry host = Dns.GetHostEntry(l);
+            
+            
+            using (var principalContext = new PrincipalContext(ContextType.Domain, "GMR.local"))
+            {
+                var domainUsers = new List<string>();
+                var computerPrinciple = new ComputerPrincipal(principalContext);
+                // Performe search for Domain users
+                using (var searchResult = new PrincipalSearcher(computerPrinciple))
+                {
+                    foreach (var domainUser in searchResult.FindAll())
+                    {
+                        if (domainUser.DisplayName != null)
+                        {
+                            domainUsers.Add(domainUser.DisplayName);
+                        }
+                    }
+                }
+            }
+            return Ok("BOB");
+        }
         [HttpPatch("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {

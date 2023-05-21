@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
+using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Http.Results;
@@ -22,7 +23,7 @@ namespace AttendanceWebAPI.Controllers
     [EnableCors("AppPolicy")]
     public class AppController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        //private readonly UserManager<IdentityUser> _userManager;
 
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<TimeSlot>> GetTimeslotInfos()
@@ -47,6 +48,8 @@ namespace AttendanceWebAPI.Controllers
             var princ = Thread.CurrentPrincipal;
             var domainName = Request.Host;
             var x = HttpContext.User.Identity;
+            
+           
             return Ok("Hello");
         }
 

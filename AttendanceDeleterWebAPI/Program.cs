@@ -1,9 +1,12 @@
+using AttendanceWebAPI.Controllers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.DirectoryServices.AccountManagement;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Sockets;
 using System.Text;
@@ -21,6 +24,10 @@ namespace AttendanceWebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+            /*builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add(new RestrictDomainAttribute("localhost", "GMR.local"));
+            });*/
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -61,7 +68,7 @@ namespace AttendanceWebAPI
                     });
 
             });
-            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -69,13 +76,20 @@ namespace AttendanceWebAPI
                     ValidateAudience = true,
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "GMR",
+                    ValidIssuer = "gmr",
                     ValidAudience = "MonitorApp",
                     IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
-            }).AddNegotiate();
-            builder.Services.AddAuthorization();
+                
 
+            });
+            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+
+            //builder.Services.AddAuthorization(options =>
+            //{
+            //    options.FallbackPolicy = options.DefaultPolicy;
+            //});
+            builder.Services.AddAuthorization();
             //builder.Services.Configure<IdentityOptions>(options =>
             //{
             //    options.ClaimsIdentity
@@ -87,14 +101,15 @@ namespace AttendanceWebAPI
             //    options.PersistKerberosCredentials = true;
             //});
             var app = builder.Build();
-            //List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
+           
+            // List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
             //app.UseMiddleware<DomainMiddleWare>(allowedDomains);
             // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
+            if (app.Environment.IsDevelopment())
+            {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            //}
+            }
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AppPolicy");

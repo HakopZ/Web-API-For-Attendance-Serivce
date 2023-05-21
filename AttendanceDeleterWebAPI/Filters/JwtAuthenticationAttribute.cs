@@ -57,9 +57,9 @@ namespace Test_2.Filters
                 context.Principal = principal;
             }
         }
-        private static bool ValidateToken(string token, out string? username)
+        private static bool ValidateToken(string token, out string username)
         {
-            username = null;
+            username = "";
 
             var simplePrinciple = JwtManager.GetPrincipal(token);
             var identity = simplePrinciple?.Identity as ClaimsIdentity;
@@ -71,8 +71,14 @@ namespace Test_2.Filters
                 return false;
 
             var usernameClaim = identity.FindFirst(ClaimTypes.Name);
-            username = usernameClaim?.Value;
-
+            if (usernameClaim == null)
+            {
+                username = "";
+            }
+            else
+            {
+                username = usernameClaim.Value;
+            }
             if (string.IsNullOrEmpty(username))
                 return false;
 
@@ -81,7 +87,7 @@ namespace Test_2.Filters
             return true;
         }
 
-        protected Task<IPrincipal> AuthenticateToken(string token)
+        private Task<IPrincipal> AuthenticateToken(string token)
         {
             if (ValidateToken(token, out var username))
             {
