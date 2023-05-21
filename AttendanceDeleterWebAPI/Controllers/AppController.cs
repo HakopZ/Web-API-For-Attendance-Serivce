@@ -115,13 +115,13 @@ namespace AttendanceWebAPI.Controllers
             }*/
             List<GMRSession> mockData = new List<GMRSession>()
             {
-                new GMRSession(1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
-                new GMRSession(2, 1, 2, new List<int>(){ 1,2 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
-                new GMRSession(3, 1, 3, new List<int>(){ 3 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
-                new GMRSession(4, 2, 4, new List<int>(){ 3 }, StudentStatus.Moved, new DateOnly(2023, 2, 19)),
-                new GMRSession(5, 3, 5, new List<int>(){ 4 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
-                new GMRSession(6, 3, 6, new List<int>(){ 4 }, StudentStatus.Here, new DateOnly(2023, 2, 19)),
-                new GMRSession(7, 4, 7, new List<int>(){ 5 }, StudentStatus.Here, new DateOnly(2023, 2, 19))
+                new GMRSession(1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
+                new GMRSession(2, 1, 2, new List<int>(){ 1,2 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
+                new GMRSession(3, 1, 3, new List<int>(){ 3 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
+                new GMRSession(4, 2, 4, new List<int>(){ 3 }, StudentStatus.Moved, new DateTime(2023, 2, 19)),
+                new GMRSession(5, 3, 5, new List<int>(){ 4 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
+                new GMRSession(6, 3, 6, new List<int>(){ 4 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
+                new GMRSession(7, 4, 7, new List<int>(){ 5 }, StudentStatus.Here, new DateTime(2023, 2, 19))
             };
             return Ok(mockData);
         }

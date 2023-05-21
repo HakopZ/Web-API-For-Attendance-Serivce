@@ -26,9 +26,9 @@ namespace Test_2.ScheduleSetup
         [Required]
         public StudentStatus Status { get; set; }
 
-        public DateOnly? Date { get; set; }
+        public DateTime Date { get; set; }
 
-        public GMRSession(int studentID, int timeSlotId, int stationID, List<int> instructorID, StudentStatus status, DateOnly? date = null)
+        public GMRSession(int studentID, int timeSlotId, int stationID, List<int> instructorID, StudentStatus status, DateTime date)
         {
             StudentID = studentID;
             TimeSlotID = timeSlotId;
