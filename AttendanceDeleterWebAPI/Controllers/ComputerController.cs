@@ -1,45 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
 using System.Data.SqlClient;
-using System.DirectoryServices.AccountManagement;
-using System.DirectoryServices.Protocols;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
-using System.Security.Principal;
-using System.Web.Http;
+
 using Test_2;
 using Test_2.Models;
-using Test_2.ScheduleSetup;
-using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
-using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
-using HttpPatchAttribute = Microsoft.AspNetCore.Mvc.HttpPatchAttribute;
+//using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+//using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+//using HttpPatchAttribute = Microsoft.AspNetCore.Mvc.HttpPatchAttribute;
 
 namespace AttendanceWebAPI.Controllers
 {
-    public class RestrictDomainAttribute : Attribute, IAuthorizationFilter
-    {
-        public IEnumerable<string> AllowedHosts { get; }
-
-        public RestrictDomainAttribute(params string[] allowedHosts) => AllowedHosts = allowedHosts;
-
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            //  Get host from the request and check if it's in the enumeration of allowed hosts
-            string host = context.HttpContext.Request.Host.Host;
-            if (!AllowedHosts.Contains(host, StringComparer.OrdinalIgnoreCase))
-            {
-                
-                //  Request came from an authorized host, return bad request
-                context.Result = new BadRequestObjectResult("Host is not allowed");
-            }
-        }
-    }
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [ApiController]
-    [Microsoft.AspNetCore.Mvc.Route("[controller]")]
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [Route("[controller]")]
+    [EnableCors("AppPolicy")]
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
@@ -49,34 +27,31 @@ namespace AttendanceWebAPI.Controllers
 
 
         [HttpGet("Test")]
-        //[RestrictDomain("localhost", "GMR.local")]
+        [Authorize()]
         public async Task<IActionResult> Test()
         {
-            
-           // var check = Security.IsInGroup(User, "Admin");//--
+
+            // var check = Security.IsInGroup(User, "Admin");//--
 
             //var l = Request.HttpContext.Connection.RemoteIpAddress;
-            
-            
+
             //IPHostEntry host = Dns.GetHostEntry(l);
-            
-            
-            using (var principalContext = new PrincipalContext(ContextType.Domain, "GMR.local"))
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            // Check if the user identity is authenticated
+            if (identity != null && identity.IsAuthenticated)
             {
-                var domainUsers = new List<string>();
-                var computerPrinciple = new ComputerPrincipal(principalContext);
-                // Performe search for Domain users
-                using (var searchResult = new PrincipalSearcher(computerPrinciple))
-                {
-                    foreach (var domainUser in searchResult.FindAll())
-                    {
-                        if (domainUser.DisplayName != null)
-                        {
-                            domainUsers.Add(domainUser.DisplayName);
-                        }
-                    }
-                }
+                // Retrieve the user's name
+                var userName = identity.Name;
+
+                // You can also retrieve other claims associated with the user
+                // For example, to get the user's email:
+                var userEmail = identity.FindFirst(ClaimTypes.Email)?.Value;
+
+                // Return the user identity information
+             //   return $"User Name: {userName}, Email: {userEmail}";
             }
+
             return Ok("BOB");
         }
         [HttpPatch("LogIn")]

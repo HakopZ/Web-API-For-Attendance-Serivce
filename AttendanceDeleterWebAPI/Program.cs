@@ -68,7 +68,15 @@ namespace AttendanceWebAPI
                     });
 
             });
-            builder.Services.AddAuthentication().AddJwtBearer(options =>
+
+            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+               .AddNegotiate();
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = options.DefaultPolicy;
+            });
+            /*builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -82,8 +90,7 @@ namespace AttendanceWebAPI
                 };
                 
 
-            });
-            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+            });*/
 
             //builder.Services.AddAuthorization(options =>
             //{

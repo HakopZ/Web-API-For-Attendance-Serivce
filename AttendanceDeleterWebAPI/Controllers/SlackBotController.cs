@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Web;
 using Test_2.Models;
 
@@ -8,7 +9,7 @@ using Test_2.Models;
 
 namespace Test_2.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     [ApiController]
     public class SlackBotController : ControllerBase
@@ -16,8 +17,12 @@ namespace Test_2.Controllers
         [HttpGet("CheckConnection")]
         public ActionResult<string> CheckConnection(string challenge)
         {
-            var x = Request.GetDisplayUrl;
+            if (HttpContext.Connection.RemoteIpAddress is not null)
+            {
+
+            }            
             return Ok(challenge);
+
         }
 
 

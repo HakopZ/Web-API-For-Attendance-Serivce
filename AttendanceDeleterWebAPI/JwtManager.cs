@@ -23,12 +23,13 @@ namespace AttendanceWebAPI
             var now = DateTime.UtcNow;
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+
                 Subject = new ClaimsIdentity(new[]
                         {
-                        
-                            new Claim(ClaimTypes.Name, username)
+                            new Claim(ClaimTypes.Name, username),
+                            new Claim(ClaimTypes.Role, username == "gmr" ? "Admin" : "Not Admin")
                         }),
-
+                
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
                 Issuer = "gmr",
                 Audience = "MonitorApp",
