@@ -2,8 +2,8 @@
 using System.Web.Http;
 using Owin;
 using System.Net.Http.Headers;
-
-
+using System.Net;
+using System.Net.Security;
 
 /// <summary>
 /// 
@@ -44,10 +44,12 @@ namespace TestWebAPIWithConsole
     }
     internal class Program
     {
-        static HttpClient client = new HttpClient();
+
+        
+        static HttpClient client;
 
 
-        static string baseAddress = "http://192.168.2.114:5247/";
+        static string baseAddress = "http://gmr-124-2-1:5247/";
 
         static async Task<WeatherForecast> SendWeather(WeatherForecast weather)
         {
@@ -56,38 +58,51 @@ namespace TestWebAPIWithConsole
 
             return await response.Content.ReadAsAsync<WeatherForecast>();
         }
-        static async Task<List<TimeSlot>> GetTimeSlotAsync(string path)
+        static async Task<HttpResponseMessage> GetAsync(HttpClient request, string requestURL)
         {
-            List<TimeSlot> temp = new List<TimeSlot>();
-            HttpResponseMessage response = await client.GetAsync(path);
-            if (response.IsSuccessStatusCode)
+            //List<T> temp = new List<TimeSlot>();
+            var response = await request.GetAsync(requestURL);
+            //HttpResponseMessage response = await client.GetAsync(path);
+            if (!response.IsSuccessStatusCode)
             {
-                temp = await response.Content.ReadAsAsync<List<TimeSlot>>();
+                ;
             }
-            return temp;
+            return response;
         }
-        
+
         static async Task RunAsync()
         {
-                // Update port # in the following line.
-                client.BaseAddress = new Uri(baseAddress);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //// Update port # in the following line.
+            //NetworkCredential defaultCredential = CredentialCache.DefaultNetworkCredentials;
+            ////NetworkCredential credential = new NetworkCredential("hakop.zarikyan", "GreatMinds217", "GMR.local");
+            //var credentialCache = new CredentialCache() { { new Uri(baseAddress + "Computer/Test"), "Negotiate", credential} };
+            HttpClientHandler handler = new HttpClientHandler()
+            {
+                //UseDefaultCredentials = true
+                Credentials = CredentialCache.DefaultCredentials
+            };
+            client = new HttpClient(handler);
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Accept.Clear();
 
-                var response = await GetTimeSlotAsync(baseAddress + "SlackBot/CheckConnection?challenge=Hello");
-                if (response != null)
-                {
-                    ;
-                    return;
-                }
-            
+            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Negotiate");
+            //            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var response = await GetAsync(client, "Computer/Test");
+            if (response != null)
+            {
+                ;
+                return;
+            }
+
 
         }
         static void Main(string[] args)
         {
 
             RunAsync().Wait();
-            
+
         }
+        
     }
 }
