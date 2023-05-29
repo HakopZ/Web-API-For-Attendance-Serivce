@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using System.Data.SqlClient;
 using System.Security.Claims;
 
 using Test_2;
+using Test_2.Filters;
 using Test_2.Models;
 //using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 //using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
@@ -14,7 +16,10 @@ using Test_2.Models;
 
 namespace AttendanceWebAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    //[Authorize(AuthenticationSchemes = NegotiateDefaults.AuthenticationScheme)]
+
+    [NTLMAuthentication]
+   // [Authorize]
     [ApiController]
     [Route("[controller]")]
     [EnableCors("AppPolicy")]
@@ -27,7 +32,6 @@ namespace AttendanceWebAPI.Controllers
 
 
         [HttpGet("Test")]
-        [Authorize()]
         public async Task<IActionResult> Test()
         {
 
