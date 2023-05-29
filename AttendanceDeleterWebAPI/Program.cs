@@ -24,14 +24,16 @@ namespace AttendanceWebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
-            /*builder.Services.AddControllers(options =>
-            {
-                options.Filters.Add(new RestrictDomainAttribute("localhost", "GMR.local"));
-            });*/
+            //builder.Services.AddControllers(options =>
+            //{
+            //    options.Filters.Add(typeof(NTLMAuthentication));
+            //});
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -68,7 +70,12 @@ namespace AttendanceWebAPI
                     });
 
             });
-            builder.Services.AddAuthentication().AddJwtBearer(options =>
+
+            //builder.Services.AddTransient<NTLMAuthentication>();
+            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+            //   .AddNegotiate();
+
+            /*builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -82,13 +89,13 @@ namespace AttendanceWebAPI
                 };
                 
 
-            });
-            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-
+            });*/
             //builder.Services.AddAuthorization(options =>
             //{
             //    options.FallbackPolicy = options.DefaultPolicy;
             //});
+            
+            builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
             //builder.Services.Configure<IdentityOptions>(options =>
             //{
@@ -100,6 +107,7 @@ namespace AttendanceWebAPI
             //{
             //    options.PersistKerberosCredentials = true;
             //});
+            
             var app = builder.Build();
            
             // List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
@@ -108,7 +116,11 @@ namespace AttendanceWebAPI
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+                });
             }
             app.UseHttpsRedirection();
             app.UseRouting();
