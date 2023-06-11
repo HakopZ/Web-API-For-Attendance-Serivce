@@ -1,18 +1,5 @@
-using AttendanceWebAPI.Controllers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.DirectoryServices.AccountManagement;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Sockets;
-using System.Text;
-using System.Web.Http;
-using Test_2;
-using Test_2.Filters;
 
 namespace AttendanceWebAPI
 {
@@ -21,13 +8,11 @@ namespace AttendanceWebAPI
 
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
-            //builder.Services.AddControllers(options =>
-            //{
-            //    options.Filters.Add(typeof(NTLMAuthentication));
-            //});
+
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -46,17 +31,17 @@ namespace AttendanceWebAPI
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
+                       {
+                           new OpenApiSecurityScheme
+                           {
+                               Reference = new OpenApiReference
+                               {
+                                   Type = ReferenceType.SecurityScheme,
+                                   Id = "Bearer"
+                               }
+                           },
+                           new string[] { }
+                       }
                 });
             });
             builder.Services.AddCors(options =>
@@ -71,9 +56,8 @@ namespace AttendanceWebAPI
 
             });
 
-            //builder.Services.AddTransient<NTLMAuthentication>();
-            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-            //   .AddNegotiate();
+
+            builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
 
             /*builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
@@ -87,16 +71,16 @@ namespace AttendanceWebAPI
                     ValidAudience = "MonitorApp",
                     IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
-                
+
 
             });*/
             //builder.Services.AddAuthorization(options =>
             //{
             //    options.FallbackPolicy = options.DefaultPolicy;
             //});
-            
-            builder.Services.AddAuthentication();
-            builder.Services.AddAuthorization();
+            //   
+            // builder.Services.AddAuthentication();
+            // builder.Services.AddAuthorization();
             //builder.Services.Configure<IdentityOptions>(options =>
             //{
             //    options.ClaimsIdentity
@@ -107,9 +91,9 @@ namespace AttendanceWebAPI
             //{
             //    options.PersistKerberosCredentials = true;
             //});
-            
+
             var app = builder.Build();
-           
+
             // List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
             //app.UseMiddleware<DomainMiddleWare>(allowedDomains);
             // Configure the HTTP request pipeline.
@@ -118,7 +102,7 @@ namespace AttendanceWebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    
+
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
                 });
             }
@@ -132,6 +116,9 @@ namespace AttendanceWebAPI
             app.MapControllers();
 
             app.Run();
+
+
+
         }
     }
 }

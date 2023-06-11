@@ -19,8 +19,10 @@ namespace Test_2.Filters
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             // Check if the request contains the NTLM authorization header
-            string authHeader = context.HttpContext.Request.Headers["Authorization"];
-            if (authHeader != null && authHeader.StartsWith("NTLM "))
+
+
+            var authHeader = context.HttpContext.Request.Headers["Authorization"];
+            /*if (authHeader != null && authHeader.StartsWith("NTLM"))
             {
                 try
                 {
@@ -38,10 +40,10 @@ namespace Test_2.Filters
                     // Log and handle any authentication errors
                     Console.WriteLine("NTLM authentication error: " + ex.Message);
                 }
-            }
+            }*/
 
             // If the authentication fails or no NTLM header is present, deny the request
-            context.Result = new UnauthorizedResult();
+           
         }
     }
 }

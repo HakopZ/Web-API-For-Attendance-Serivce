@@ -16,18 +16,18 @@ using Test_2.Models;
 
 namespace AttendanceWebAPI.Controllers
 {
-    //[Authorize(AuthenticationSchemes = NegotiateDefaults.AuthenticationScheme)]
 
-    [NTLMAuthentication]
-   // [Authorize]
+    //[NTLMAuthentication]
+    //[Authorize]
     [ApiController]
     [Route("[controller]")]
     [EnableCors("AppPolicy")]
+    [Authorize]
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
         //Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
-        public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
+        //public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         //might be a post call discuss later
 
 
