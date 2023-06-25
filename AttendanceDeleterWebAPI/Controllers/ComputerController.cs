@@ -65,18 +65,27 @@ namespace AttendanceWebAPI.Controllers
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
             //amount of log ins returned from stored procedured
-            var returnVal = new SqlParameter("@DuplicateStationID", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
 
             //Calling stored procedure sign in 
-            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@IsManual", false), new SqlParameter("@Username", enterInfo.AccountName), 
-                new SqlParameter("@Date", enterInfo.TimeOfRecord), returnVal);
 
-
+            var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", enterInfo.StationName));
+            await stationVal.ReadAsync();
+            int stationId = (int)stationVal[0];
+            var rVal = await Helper.CallReader("IsStudentScheduled", new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]));
+            await rVal.ReadAsync();
+            if ((int)rVal[0] == 0)
+            {
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationName, $"Student: {enterInfo.AccountName} has signed in at {enterInfo.StationName} is not scheduled", TimeOnly.FromDateTime(DateTime.Now)));
+            }
+            var r = await Helper.CallReader("Sign In", new SqlParameter("@StationID", stationId), new SqlParameter("@IsManual", false), new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]), 
+                new SqlParameter("@Date", enterInfo.TimeOfRecord));
+            
+            await r.ReadAsync();
             //Check if there is a double log in 
-            if ((int)returnVal.Value != -1)
+            if ((int)r[0] != -1)
             {
                 //Event message and notifcations
-                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
+                Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationName, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
             }
             Communicator.SessionUpdate = true;
             return Ok();
@@ -89,13 +98,16 @@ namespace AttendanceWebAPI.Controllers
             //eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID));
 
             //If there is a late submission of data
+            var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", exitInfo.StationName));
+            await stationVal.ReadAsync();
+            int stationId = (int)stationVal[0];
             if (exitInfo.TimeOfRecord == null)
             {
-                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", exitInfo.StationID));
+                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", stationId), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
             }
             else
             {
-                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", exitInfo.StationID), new SqlParameter("@Date", exitInfo.TimeOfRecord), new SqlParameter("@Username", exitInfo.AccountName));
+                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", stationId), new SqlParameter("@Date", exitInfo.TimeOfRecord), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
             }
             Communicator.SessionUpdate = true;
             return Ok();
@@ -104,20 +116,5 @@ namespace AttendanceWebAPI.Controllers
 
 
 
-        [HttpPatch("ApplicationUpdate")]
-        public async Task<IActionResult> ApplicationUpdate([FromBody] MonitorInfo monitorInfo)
-        {
-            await Helper.CallStoredProcedure("ApplicationUpdate", new SqlParameter("@StationID", monitorInfo.StationID), new SqlParameter("@Username", monitorInfo.AccountName), new SqlParameter("@ApplicatoonName", monitorInfo.ForegroundWindowTitle));
-            Communicator.SessionUpdate = true;
-            return Ok();
-        }
-
-        [HttpPatch("CurrentFileUpdate")]
-        public async Task<IActionResult> CurrentFileUpdate([FromBody] MonitorInfo monitorInfo)
-        {
-            await Helper.CallStoredProcedure("CurrentFileUpdate", new SqlParameter("@StationID", monitorInfo.StationID), new SqlParameter("@Username", monitorInfo.AccountName), new SqlParameter("@Filename", monitorInfo.CurrentFileName));
-            Communicator.SessionUpdate = true;
-            return Ok();
-        }
     }
 }

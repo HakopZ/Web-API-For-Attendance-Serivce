@@ -4,7 +4,7 @@ using Test_2.ScheduleSetup;
 namespace Test_2.Models
 {
 
-    public record EventMessage(int StationID, string Message, TimeOnly Time);
+    public record EventMessage(string StationID, string Message, TimeOnly Time);
 
     public record StatusInfo(List<Student> StudentsLoggedIn, List<GMRClass> Classes);
 

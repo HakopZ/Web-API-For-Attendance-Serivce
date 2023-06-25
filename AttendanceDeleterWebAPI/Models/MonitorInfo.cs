@@ -5,23 +5,18 @@ namespace Test_2.Models
     public class MonitorInfo
     {
         [Required]
-        public int  StationID { get; set; }
+        public string StationName { get; set; }
 
         [Required]
         public string AccountName { get; set; }
 
-        public string? ForegroundWindowTitle { get; set; }
-        
-        public string? CurrentFileName { get; set; }
         
 
         public DateTime? TimeOfRecord { get; set; }
-        public MonitorInfo(int stationID, string accountName, string? foregroundWindowTitle, string? currentFileName, DateTime? timeOfRecord)
+        public MonitorInfo(string stationName, string accountName, string? foregroundWindowTitle, string? currentFileName, DateTime? timeOfRecord)
         {
-            StationID = stationID;
+            StationName = stationName;
             AccountName = accountName;
-            ForegroundWindowTitle = foregroundWindowTitle;
-            CurrentFileName = currentFileName;
             TimeOfRecord = timeOfRecord;
         }
     }

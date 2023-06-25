@@ -10,12 +10,12 @@ namespace Test_2.ScheduleSetup
         public int ID { get; }
 
         [Required]
-        public List<GMRSession> Classes { get; set; }
+        public List<ScheduledClass> Classes { get; set; }
 
         [Required]
         public DateOnly Date { get; private set; }
 
-        public GMRSchedule(int iD, List<GMRSession> classes, DateOnly date)
+        public GMRSchedule(int iD, List<ScheduledClass> classes, DateOnly date)
         {
             ID = iD;
             Classes = classes;

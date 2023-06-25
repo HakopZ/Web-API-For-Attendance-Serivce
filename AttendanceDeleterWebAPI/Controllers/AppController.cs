@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.SqlClient;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
@@ -88,54 +89,74 @@ namespace AttendanceWebAPI.Controllers
         //GET INFO OF STATIONS
         //MOCK DATA
         [HttpGet("Session/GetStationInfos")]
-        public ActionResult<List<StationInfo>> GetStationInfos()
+        public async Task<ActionResult<List<StationInfo>>> GetStationInfos()
         {
             List<StationInfo> mockData = new List<StationInfo>()
             {
-                new StationInfo(1, "118.1.1", "Room 118"),
-                new StationInfo(2, "118.1.2", "Room 118"),
-                new StationInfo(3, "118.1.3", "Room 118"),
-                new StationInfo(4, "118.2.1", "Room 118"),
-                new StationInfo(5, "119.2.2", "Room 119"),
-                new StationInfo(6, "119.2.3", "Room 119"),
+                new StationInfo(1, "1", "2", "124"),
+                new StationInfo(2, "1", "1", "118"),
+
             };
-            return Ok(mockData);
+
+            List<StationInfo> stationInfos = new List<StationInfo>();    
+            var reader = await Helper.CallReader("GetStationInfos");
+            while (await reader.ReadAsync())
+            {
+                
+                 StationInfo info = new StationInfo((int)reader[0], (string)reader[1], (string)reader[2], (string)reader[3]); 
+                 stationInfos.Add(info);
+            }
+            return Ok(stationInfos);
         }
-
-
-        //GET THE CURRENT SCHEDULE OF THE DAY WITH STUDENTS status, station, time and instructtor
-        //FORMAT : {STUDENT ID, TIMSLOT ID, STATION ID, INSTRUCTORS IDs, STUDENT STATUS, DATETIME
-        [HttpGet("Session/AllClasses")]
-        public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
+        private async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
         {
-            /*
-            var reader = await Helper.CallReader("GetAllClasses");
-
-            List<GMRSession> sessions = new List<GMRSession>();
+            List<ScheduledClass> sessions = new List<ScheduledClass>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
             while (await reader.ReadAsync())
             {
-                var instructorReader = await Helper.CallReader("GetInstructorsWithSessionID", new SqlParameter("@SessionID", (int)reader[3]));
+                int sessionID = (int)reader[0];
+                var classReader = await Helper.CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var instructorReader = await Helper.CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
                 List<int> instructors = new List<int>();
                 while (await instructorReader.ReadAsync())
                 {
                     instructors.Add((int)instructorReader[0]);
                 }
-                GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)reader[4]);
-
+                ScheduledClass? temp = null;
+                while (await classReader.ReadAsync())
+                {
+                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classReader[0]));
+                    await returnReader.ReadAsync();
+                    temp = new ScheduledClass(sessionID, (int)classReader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)(int)returnReader[0], (DateTime)reader[5]);
+                }
+                if (temp == null)
+                {
+                    throw new InvalidDataException("FAILED to set scheduled class");
+                }
                 sessions.Add(temp);
-            }*/
-            List<GMRSession> mockData = new List<GMRSession>()
+            }
+            return sessions;
+        }
+        [HttpGet("Sessions/GetScheduleForTheDay")]
+        public async Task<ActionResult<List<ScheduledClass>>> GetScheduleForTheDay()
+        {
+            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", DateTime.UtcNow));
+            return Ok(await GetClassesFromReader(reader));
+        }
+        //GET THE CURRENT SCHEDULE OF STUDENTS status, station, time and instructtor
+        //FORMAT : {STUDENT ID, TIMSLOT ID, STATION ID, INSTRUCTORS IDs, STUDENT STATUS, DATETIME
+        [HttpGet("Session/AllClasses")]
+        public async Task<ActionResult<List<ScheduledClass>>> GetCurrentSessions()
+        {
+            
+            var reader = await Helper.CallReader("GetCurrentSessions");
+            var sessions = await GetClassesFromReader(reader);
+            List<ScheduledClass> mockData = new List<ScheduledClass>()
             {
-                new GMRSession(1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
-                new GMRSession(2, 1, 2, new List<int>(){ 1,2 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
-                new GMRSession(3, 1, 3, new List<int>(){ 3 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
-                new GMRSession(4, 2, 4, new List<int>(){ 3 }, StudentStatus.Moved, new DateTime(2023, 2, 19)),
-                new GMRSession(5, 3, 5, new List<int>(){ 4 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
-                new GMRSession(6, 3, 6, new List<int>(){ 4 }, StudentStatus.Here, new DateTime(2023, 2, 19)),
-                new GMRSession(7, 4, 7, new List<int>(){ 5 }, StudentStatus.Here, new DateTime(2023, 2, 19))
+                new ScheduledClass(1, 1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Present, new DateTime(2023, 2, 19)),
+
             };
-            return Ok(mockData);
+            return Ok(sessions);
         }
 
         //CHECK IF SCHEDULE SHOULD BE UPDATED
@@ -173,10 +194,16 @@ namespace AttendanceWebAPI.Controllers
             {
                 return BadRequest();
             }
-            await Helper.CallStoredProcedure("SwapSession", new SqlParameter("@OldSessionID", body.OldSessionID), new SqlParameter("@NewSessionID", body.NewSessionID),
+            
+            var reader = await Helper.CallReader("SwapSession", new SqlParameter("@OldSessionID", body.OldSessionID), new SqlParameter("@NewSessionID", body.NewSessionID),
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
+            await reader.ReadAsync();
 
-            return Ok();
+            if ((int)reader[0] == - 1)
+            {
+                return NotFound();
+            }
+            return Ok((int)reader[0]);
         }
 
         //Update the classes instructor 
@@ -200,34 +227,20 @@ namespace AttendanceWebAPI.Controllers
         }
         //Get Schedule history by a start date and end date
         [HttpGet("History/GetByDate")]
-        public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate(DateTime start, DateTime end)
+        public async Task<ActionResult<List<ScheduledClass>>> GetHistoryByDate(DateTime start, DateTime end)
         {
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
-
-            List<GMRSession> classes = new List<GMRSession>();
-            while (await reader.ReadAsync())
-            {
-                throw new NotImplementedException();
-                // GMRSession temp = new GMRSession((int)reader[0], (int)reader[1],  (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                // classes.Add(temp);
-            }
+            var classes = await GetClassesFromReader(reader);
             return Ok(classes);
         }
 
         //Get All Schedule History of a Student given a student ID
         [HttpGet("History/GetByStudentID")]
-        public async Task<ActionResult<List<GMRSession>>> GetStudentHistory([FromBody] int studentID)
+        public async Task<ActionResult<List<ScheduledClass>>> GetStudentHistory([FromBody] int studentID)
         {
 
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StudentID", studentID));
-
-            List<GMRSession> classes = new List<GMRSession>();
-            while (await reader.ReadAsync())
-            {
-                throw new NotImplementedException();
-                // GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                // classes.Add(temp);
-            }
+            var classes = await GetClassesFromReader(reader); 
             return Ok(classes);
         }
 
@@ -243,13 +256,7 @@ namespace AttendanceWebAPI.Controllers
 
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", info.Start), new SqlParameter("@EndDate", info.End), new SqlParameter("@StudentID", info.StudentID));
 
-            List<GMRSession> classes = new List<GMRSession>();
-            while (await reader.ReadAsync())
-            {
-                throw new NotImplementedException();
-                //GMRSession temp = new GMRSession((int)reader[0], (int)reader[1], (string)reader[2], (int)reader[3], (int)reader[4], (DateOnly)reader[5]);
-                //classes.Add(temp);
-            }
+            var classes = await GetClassesFromReader(reader);
             return Ok(classes);
         }
     }

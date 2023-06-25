@@ -1,4 +1,6 @@
-﻿using System.Data.SqlClient;
+﻿global using Fictionary = System.Collections.Generic.Dictionary<string, int>;
+
+using System.Data.SqlClient;
 using Test_2.Models;
 using Test_2.ScheduleSetup;
 
@@ -14,6 +16,7 @@ namespace Test_2
         public static SqlConnection sqlConnection = new SqlConnection(connectionString);
         public static HttpClient client = new HttpClient();
         public static Queue<EventMessage> eventMessages= new Queue<EventMessage>();
+        public static Fictionary StudentMap = new ();
        // public static bool EventOccured = false;
         
     }

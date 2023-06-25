@@ -15,7 +15,7 @@ namespace Test_2.Controllers
 
         //Getting schedule from STAN
         [HttpPost("MakeSchedule")]
-        public async void MakeSchedule([FromBody] List<GMRSession> schedule)
+        public async void MakeSchedule([FromBody] List<ScheduledClass> schedule)
         {
             
             foreach(var session in schedule)
