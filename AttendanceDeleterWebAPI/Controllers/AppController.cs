@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
@@ -23,8 +24,8 @@ namespace AttendanceWebAPI.Controllers
     [EnableCors("AppPolicy")]
     public class AppController : ControllerBase
     {
-        //private readonly UserManager<IdentityUser> _userManager;
-
+        //Getting timeSlot info
+        //Test Data currently, will e getting it from Stan magic
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<Timeslot>> GetTimeslotInfos()
         {
@@ -40,19 +41,20 @@ namespace AttendanceWebAPI.Controllers
         }
 
 
-        //[JwtAuthentication]
-
+        //Test code doesnt matter
         [HttpGet("Session/Test")]
         public ActionResult<string> Test()
         {
             var princ = Thread.CurrentPrincipal;
             var domainName = Request.Host;
             var x = HttpContext.User.Identity;
-            
-           
+
+
             return Ok("Hello");
         }
 
+        //Test data for student info, should ping STAN or API
+        //MOCK DATA
         [HttpGet("Session/GetStudentInfos")]
         public ActionResult<List<Student>> GetStudentInfos()
         {
@@ -68,6 +70,8 @@ namespace AttendanceWebAPI.Controllers
             return Ok(mockData);
         }
 
+        //TEST DATA FOR INSTRUCTORS
+        //NEEDS TO GET FROM SQL OR STAN
         [HttpGet("Session/GetInstructorInfos")]
         public ActionResult<List<Instructor>> GetInstructorInfos()
         {
@@ -81,6 +85,8 @@ namespace AttendanceWebAPI.Controllers
             return Ok(mockData);
         }
 
+        //GET INFO OF STATIONS
+        //MOCK DATA
         [HttpGet("Session/GetStationInfos")]
         public ActionResult<List<StationInfo>> GetStationInfos()
         {
@@ -96,6 +102,9 @@ namespace AttendanceWebAPI.Controllers
             return Ok(mockData);
         }
 
+
+        //GET THE CURRENT SCHEDULE OF THE DAY WITH STUDENTS status, station, time and instructtor
+        //FORMAT : {STUDENT ID, TIMSLOT ID, STATION ID, INSTRUCTORS IDs, STUDENT STATUS, DATETIME
         [HttpGet("Session/AllClasses")]
         public async Task<ActionResult<List<GMRSession>>> GetScheduleForTheDay()
         {
@@ -129,6 +138,7 @@ namespace AttendanceWebAPI.Controllers
             return Ok(mockData);
         }
 
+        //CHECK IF SCHEDULE SHOULD BE UPDATED
         [HttpGet("Session/CheckStatus")]
         public ActionResult<bool> CheckStatus()
         {
@@ -149,7 +159,13 @@ namespace AttendanceWebAPI.Controllers
         //}
 
 
-
+        /*
+        UPDATE THE STUDENT LOCATION GIVEN
+        OldSessionID 
+        NewSessionID
+        InstructorID
+        ReplacementID
+        */
         [HttpPatch("Student/UpdateStudentLocation")]
         public async Task<ActionResult> UpdateStudentLocation([FromBody] StudentLocation body)
         {
@@ -163,7 +179,13 @@ namespace AttendanceWebAPI.Controllers
             return Ok();
         }
 
-        //public IActionResult OnLaptop()
+        //Update the classes instructor 
+        /*
+        OldTeachingStationID 
+        NewTeachingStationID 
+        InstructorID 
+        ReplacementID 
+        */
         [HttpPatch("UpdateInstructor")]
         public async Task<ActionResult> UpdateClassInstructor([FromBody] UpdateInstructor body)
         {
@@ -176,7 +198,7 @@ namespace AttendanceWebAPI.Controllers
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
             return Ok();
         }
-
+        //Get Schedule history by a start date and end date
         [HttpGet("History/GetByDate")]
         public async Task<ActionResult<List<GMRSession>>> GetHistoryByDate(DateTime start, DateTime end)
         {
@@ -192,7 +214,7 @@ namespace AttendanceWebAPI.Controllers
             return Ok(classes);
         }
 
-
+        //Get All Schedule History of a Student given a student ID
         [HttpGet("History/GetByStudentID")]
         public async Task<ActionResult<List<GMRSession>>> GetStudentHistory([FromBody] int studentID)
         {
@@ -209,6 +231,7 @@ namespace AttendanceWebAPI.Controllers
             return Ok(classes);
         }
 
+        //Get Student history based off of student id, start date and end date
         [HttpGet("History/GetByStudentRecord")]
         public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
         {

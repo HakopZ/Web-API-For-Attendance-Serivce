@@ -29,7 +29,7 @@ namespace AttendanceWebAPI.Controllers
         //Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
         //public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         //might be a post call discuss later
-
+        
 
         [HttpGet("Test")]
         public async Task<IActionResult> Test()
@@ -58,30 +58,37 @@ namespace AttendanceWebAPI.Controllers
 
             return Ok("BOB");
         }
+
+        //LOG IN 
+        //MonitorInfo Takes IN MonitorInfo(int stationID, string accountName, string? foregroundWindowTitle, string? currentFileName, DateTime? timeOfRecord)
         [HttpPatch("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] MonitorInfo enterInfo)
         {
+            //amount of log ins returned from stored procedured
             var returnVal = new SqlParameter("@DuplicateStationID", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
 
-
-            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@Username", enterInfo.AccountName), 
+            //Calling stored procedure sign in 
+            await Helper.CallStoredProcedure("Sign In", new SqlParameter("@StationID", enterInfo.StationID), new SqlParameter("@IsManual", false), new SqlParameter("@Username", enterInfo.AccountName), 
                 new SqlParameter("@Date", enterInfo.TimeOfRecord), returnVal);
 
+
+            //Check if there is a double log in 
             if ((int)returnVal.Value != -1)
             {
+                //Event message and notifcations
                 Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationID, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
             }
             Communicator.SessionUpdate = true;
             return Ok();
         }
 
-
+        //LOG OFF
         [HttpPatch("LogOff")]
         public async Task<IActionResult> LogOff([FromBody] MonitorInfo exitInfo)
         {
             //eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID));
 
-
+            //If there is a late submission of data
             if (exitInfo.TimeOfRecord == null)
             {
                 await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", exitInfo.StationID));

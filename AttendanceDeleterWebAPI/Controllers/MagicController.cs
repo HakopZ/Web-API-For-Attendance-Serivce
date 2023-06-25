@@ -12,6 +12,8 @@ namespace Test_2.Controllers
     [ApiController]
     public class MagicController : ControllerBase
     {
+
+        //Getting schedule from STAN
         [HttpPost("MakeSchedule")]
         public async void MakeSchedule([FromBody] List<GMRSession> schedule)
         {
@@ -23,7 +25,7 @@ namespace Test_2.Controllers
             }
         }
 
-        
+        //UPDATING SCHEDULE FROM STAN
 
         [HttpPatch("UpdateSchedule")]
         public async Task<ActionResult> UpdateSchedule([FromBody] UpdateScheduleInfo info)
@@ -48,10 +50,19 @@ namespace Test_2.Controllers
             Communicator.SessionUpdate = true;
             return Ok();
         }
+
+        //UPDATE NEW TIMESLOTS
         [HttpPost("MakeTimeslotMapper")]
         public void MakeTimeslotMapper([FromBody] List<Timeslot> values)
         {
             Communicator.timeslotMap = values;
+        }
+
+        //GET STUDENT IDs from name
+        [HttpPost("GetStudentID")]
+        public async void GetStudentID([FromBody] Name name)
+        {
+            await Helper.CallStoredProcedure("GetStudentID", new SqlParameter("@Firstname", name.FirstName), new SqlParameter("@Lastname", name.LastName));
         }
 
         //constantly running task that checks for schedule changes
