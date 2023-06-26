@@ -19,7 +19,7 @@ using Test_2.ScheduleSetup;
 
 namespace AttendanceWebAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("[controller]")]
     [EnableCors("AppPolicy")]
@@ -30,28 +30,15 @@ namespace AttendanceWebAPI.Controllers
         [HttpGet("Session/GetTimeslotInfos")]
         public ActionResult<List<Timeslot>> GetTimeslotInfos()
         {
-            var x = HttpContext.User.Identity;
             List<Timeslot> mockData = new List<Timeslot>()
             {
                 new Timeslot(1, new DateTime(2023, 1, 21, 22, 45, 0), new DateTime(2023, 1, 22, 0, 0, 0)),
                 new Timeslot(2, new DateTime(2023, 1, 21, 0, 15, 0), new DateTime(2023, 1, 21, 1, 30, 0)),
                 new Timeslot(3, new DateTime(2023, 1, 21, 1, 45, 0), new DateTime(2023, 1, 21, 4, 15, 0))
             };
+            //Helper.CallReader("")
             return Ok(mockData);
             //return Ok(Communicator.timeslotMap);
-        }
-
-
-        //Test code doesnt matter
-        [HttpGet("Session/Test")]
-        public ActionResult<string> Test()
-        {
-            var princ = Thread.CurrentPrincipal;
-            var domainName = Request.Host;
-            var x = HttpContext.User.Identity;
-
-
-            return Ok("Hello");
         }
 
         //Test data for student info, should ping STAN or API
@@ -108,35 +95,7 @@ namespace AttendanceWebAPI.Controllers
             }
             return Ok(stationInfos);
         }
-        private async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
-        {
-            List<ScheduledClass> sessions = new List<ScheduledClass>();
-            //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
-            while (await reader.ReadAsync())
-            {
-                int sessionID = (int)reader[0];
-                var classReader = await Helper.CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
-                var instructorReader = await Helper.CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
-                List<int> instructors = new List<int>();
-                while (await instructorReader.ReadAsync())
-                {
-                    instructors.Add((int)instructorReader[0]);
-                }
-                ScheduledClass? temp = null;
-                while (await classReader.ReadAsync())
-                {
-                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classReader[0]));
-                    await returnReader.ReadAsync();
-                    temp = new ScheduledClass(sessionID, (int)classReader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)(int)returnReader[0], (DateTime)reader[5]);
-                }
-                if (temp == null)
-                {
-                    throw new InvalidDataException("FAILED to set scheduled class");
-                }
-                sessions.Add(temp);
-            }
-            return sessions;
-        }
+       
         [HttpGet("Sessions/GetScheduleForTheDay")]
         public async Task<ActionResult<List<ScheduledClass>>> GetScheduleForTheDay()
         {
@@ -225,28 +184,38 @@ namespace AttendanceWebAPI.Controllers
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
             return Ok();
         }
-        //Get Schedule history by a start date and end date
-        [HttpGet("History/GetByDate")]
-        public async Task<ActionResult<List<ScheduledClass>>> GetHistoryByDate(DateTime start, DateTime end)
-        {
-            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
-            var classes = await GetClassesFromReader(reader);
-            return Ok(classes);
-        }
 
-        //Get All Schedule History of a Student given a student ID
-        [HttpGet("History/GetByStudentID")]
-        public async Task<ActionResult<List<ScheduledClass>>> GetStudentHistory([FromBody] int studentID)
-        {
+        /*
+         * NO POINT DOING THE SAME FUNCTION THREE TIMES?
+         */
 
-            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StudentID", studentID));
-            var classes = await GetClassesFromReader(reader); 
-            return Ok(classes);
-        }
+
+        ////Get Schedule history by a start date and end date
+        //[HttpGet("History/GetByDate")]
+        //public async Task<ActionResult<List<ScheduledClass>>> GetShceduleHistory([FromBody] TimeFilter info)
+        //{
+        //    if(!ModelState.IsValid)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end));
+        //    var classes = await GetClassesFromReader(reader);
+        //    return Ok();
+        //}
+
+        ////Get All Schedule History of a Student given a student ID
+        //[HttpGet("History/GetByStudentID")]
+        //public async Task<ActionResult<List<ScheduledClass>>> GetStudentHistory([FromBody] int studentID)
+        //{
+
+        //    var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StudentID", studentID));
+        //    var classes = await GetClassesFromReader(reader); 
+        //    return Ok(classes);
+        //}
 
         //Get Student history based off of student id, start date and end date
         [HttpGet("History/GetByStudentRecord")]
-        public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromBody] HistoryInfo info)
+        public async Task<ActionResult<List<GMRClass>>> GetStudentHistoryByDate([FromQuery(Name="StudentID")]int studentID, [FromQuery(Name = "Start")] DateTime? start, [FromQuery(Name = "End")] DateTime? end) 
         {
 
             if (!ModelState.IsValid)
@@ -254,7 +223,7 @@ namespace AttendanceWebAPI.Controllers
                 return BadRequest();
             }
 
-            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", info.Start), new SqlParameter("@EndDate", info.End), new SqlParameter("@StudentID", info.StudentID));
+            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end), new SqlParameter("@StudentID", studentID));
 
             var classes = await GetClassesFromReader(reader);
             return Ok(classes);

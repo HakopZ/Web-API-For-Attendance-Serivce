@@ -12,4 +12,6 @@ namespace Test_2.Models
 
     public record InstructorInfo(int ID, string Name);
 
+   
+
 }

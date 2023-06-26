@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.Server;
 using System.Data;
 using System.Data.SqlClient;
+using Test_2.ScheduleSetup;
 
 namespace Test_2
 {
@@ -52,7 +53,36 @@ namespace Test_2
             }
             return timeslots;
         }
+        private async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
+        {
+            List<ScheduledClass> sessions = new List<ScheduledClass>();
+            //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
 
+            while (await reader.ReadAsync())
+            {
+                int sessionID = (int)reader[0];
+                var classReader = await Helper.CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var instructorReader = await Helper.CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
+                List<int> instructors = new List<int>();
+                while (await instructorReader.ReadAsync())
+                {
+                    instructors.Add((int)instructorReader[0]);
+                }
+                ScheduledClass? temp = null;
+                while (await classReader.ReadAsync())
+                {
+                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classReader[0]));
+                    await returnReader.ReadAsync();
+                    temp = new ScheduledClass(sessionID, (int)classReader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)(int)returnReader[0], (DateTime)reader[5]);
+                }
+                if (temp == null)
+                {
+                    throw new InvalidDataException("FAILED to set scheduled class");
+                }
+                sessions.Add(temp);
+            }
+            return sessions;
+        }
 
     }
 }

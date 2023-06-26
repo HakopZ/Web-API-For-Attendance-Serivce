@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace AttendanceWebAPI
@@ -59,7 +60,7 @@ namespace AttendanceWebAPI
 
             builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
 
-            /*builder.Services.AddAuthentication().AddJwtBearer(options =>
+            builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -73,30 +74,18 @@ namespace AttendanceWebAPI
                 };
 
 
-            });*/
-            //builder.Services.AddAuthorization(options =>
+            });
+            //builder.Services.Addauthorization(options =>
             //{
-            //    options.FallbackPolicy = options.DefaultPolicy;
+            //    options.fallbackpolicy = options.defaultpolicy;
             //});
-            //   
-            // builder.Services.AddAuthentication();
-            // builder.Services.AddAuthorization();
-            //builder.Services.Configure<IdentityOptions>(options =>
-            //{
-            //    options.ClaimsIdentity
-            //});
-
-            //builder.Services.AddAuthentication(I)
-            //builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(options =>
-            //{
-            //    options.PersistKerberosCredentials = true;
-            //});
-
+              
+            builder.Services.AddAuthorization();
+            
+            
             var app = builder.Build();
 
-            // List<string> allowedDomains = new List<string>() { "GMR", "GMR2" };
-            //app.UseMiddleware<DomainMiddleWare>(allowedDomains);
-            // Configure the HTTP request pipeline.
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
