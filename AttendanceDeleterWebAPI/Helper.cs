@@ -53,7 +53,7 @@ namespace Test_2
             }
             return timeslots;
         }
-        private async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
+        public static async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
         {
             List<ScheduledClass> sessions = new List<ScheduledClass>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
