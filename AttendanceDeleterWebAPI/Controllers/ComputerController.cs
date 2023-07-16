@@ -69,20 +69,19 @@ namespace AttendanceWebAPI.Controllers
             //Calling stored procedure sign in 
 
             var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", enterInfo.StationName));
-            await stationVal.ReadAsync();
-            int stationId = (int)stationVal[0];
+            
+            int stationId = (int)stationVal.Rows[0][0];
             var rVal = await Helper.CallReader("IsStudentScheduled", new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]));
-            await rVal.ReadAsync();
-            if ((int)rVal[0] == 0)
+            
+            if ((int)rVal.Rows[0][0] == 0)
             {
                 Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationName, $"Student: {enterInfo.AccountName} has signed in at {enterInfo.StationName} is not scheduled", TimeOnly.FromDateTime(DateTime.Now)));
             }
             var r = await Helper.CallReader("Sign In", new SqlParameter("@StationID", stationId), new SqlParameter("@IsManual", false), new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]), 
                 new SqlParameter("@Date", enterInfo.TimeOfRecord));
             
-            await r.ReadAsync();
             //Check if there is a double log in 
-            if ((int)r[0] != -1)
+            if ((int)r.Rows[0][0] != -1)
             {
                 //Event message and notifcations
                 Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationName, "Double Log In. Someone didn't log off", TimeOnly.FromDateTime(DateTime.Now)));
@@ -99,8 +98,8 @@ namespace AttendanceWebAPI.Controllers
 
             //If there is a late submission of data
             var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", exitInfo.StationName));
-            await stationVal.ReadAsync();
-            int stationId = (int)stationVal[0];
+          
+            int stationId = (int)stationVal.Rows[0][0];
             if (exitInfo.TimeOfRecord == null)
             {
                 await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", stationId), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));

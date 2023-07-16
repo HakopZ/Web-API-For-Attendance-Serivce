@@ -8,12 +8,13 @@ namespace Test_2
 {
     public static class Communicator
     {
-        public static string baseAddress = "https://localhost:7247/";
+        public static string baseAddress = "http://gmr-124-2-1:5247/";
         static string connectionString = "Data Source=GMR-124-2-1;Initial Catalog=Deleter2;Integrated Security=True";
         public static bool SessionUpdate = false;
         public static GMRSchedule? Current_Schedule { get; set; }
         public static List<Timeslot> timeslotMap = new List<Timeslot>();
         public static SqlConnection sqlConnection = new SqlConnection(connectionString);
+        
         public static HttpClient client = new HttpClient();
         public static Queue<EventMessage> eventMessages= new Queue<EventMessage>();
         public static Fictionary StudentMap = new ();

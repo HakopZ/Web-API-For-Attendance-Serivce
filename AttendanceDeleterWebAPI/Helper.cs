@@ -19,16 +19,22 @@ namespace Test_2
             await Communicator.sqlConnection.CloseAsync();
         }
 
-        public static async Task<SqlDataReader> CallReader(string procedureName, params SqlParameter[] parameters)
+        public static async Task<DataTable> CallReader(string procedureName, params SqlParameter[] parameters)
         {
-            await Communicator.sqlConnection.OpenAsync();
             SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
+            DataTable dataTable = new DataTable();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddRange(parameters);
-            var reader = await cmd.ExecuteReaderAsync();
-            await Communicator.sqlConnection.CloseAsync();
 
-            return reader;
+            await Communicator.sqlConnection.OpenAsync();
+
+            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+            adapter.Fill(dataTable);
+
+            await Communicator.sqlConnection.CloseAsync();
+            adapter.Dispose();
+
+            return dataTable;
         }
 
         public static async Task<T> CallGetAPI<T>(string address)
@@ -53,27 +59,27 @@ namespace Test_2
             }
             return timeslots;
         }
-        public static async Task<List<ScheduledClass>> GetClassesFromReader(SqlDataReader reader)
+        public static async Task<List<ScheduledClass>> GetClassesFromReader(DataTable reader)
         {
             List<ScheduledClass> sessions = new List<ScheduledClass>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
-
-            while (await reader.ReadAsync())
+            
+            foreach(DataRow rows in reader.Rows)
             {
-                int sessionID = (int)reader[0];
-                var classReader = await Helper.CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
-                var instructorReader = await Helper.CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
+                int sessionID = (int)rows[0];
+                var classReader = await CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var instructorReader = await CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
                 List<int> instructors = new List<int>();
-                while (await instructorReader.ReadAsync())
+                foreach(DataRow row in instructorReader.Rows)
                 {
-                    instructors.Add((int)instructorReader[0]);
+                    instructors.Add((int)row[0]);
                 }
                 ScheduledClass? temp = null;
-                while (await classReader.ReadAsync())
+                foreach(DataRow classRow in classReader.Rows)
                 {
-                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classReader[0]));
-                    await returnReader.ReadAsync();
-                    temp = new ScheduledClass(sessionID, (int)classReader[0], (int)reader[1], (int)reader[2], instructors, (StudentStatus)(int)returnReader[0], (DateTime)reader[5]);
+                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classRow[0]));
+
+                    temp = new ScheduledClass(sessionID, (int)classRow[0], (int)classRow[1], (int)classRow[2], instructors, (StudentStatus)(int)returnReader.Rows[0][0], (DateTime)classRow[5]);
                 }
                 if (temp == null)
                 {

@@ -61,18 +61,23 @@ namespace AttendanceWebAPI.Controllers
         //TEST DATA FOR INSTRUCTORS
         //NEEDS TO GET FROM SQL OR STAN
         [HttpGet("Session/GetInstructorInfos")]
-        public ActionResult<List<Instructor>> GetInstructorInfos()
+        public async Task<ActionResult<List<int>>> GetInstructorInfos()
         {
-            List<Instructor> mockData = new List<Instructor>()
+            //List<Instructor> mockData = new List<Instructor>()
+            //{
+            //    new Instructor(1, "Edden", "Lee"),
+            //    new Instructor(2, "Lorenzo", "Smith"),
+            //    new Instructor(3, "Hakop", "John"),
+            //    new Instructor(4, "Stan", "Boss")
+            //};
+            var tble = await Helper.CallReader("GetInstructors", new SqlParameter("@ClassID", 5));
+            List<int> ids = new List<int>();
+            foreach(DataRow row in tble.Rows)
             {
-                new Instructor(1, "Edden", "Lee"),
-                new Instructor(2, "Lorenzo", "Smith"),
-                new Instructor(3, "Hakop", "John"),
-                new Instructor(4, "Stan", "Boss")
-            };
-            return Ok(mockData);
+                ids.Add((int)row["InstructorID"]);
+            }
+            return Ok(ids);
         }
-
         //GET INFO OF STATIONS
         //MOCK DATA
         [HttpGet("Session/GetStationInfos")]
@@ -87,20 +92,21 @@ namespace AttendanceWebAPI.Controllers
 
             List<StationInfo> stationInfos = new List<StationInfo>();    
             var reader = await Helper.CallReader("GetStationInfos");
-            while (await reader.ReadAsync())
-            {
+            //while (await reader.ReadAsync())
+            //{
                 
-                 StationInfo info = new StationInfo((int)reader[0], (string)reader[1], (string)reader[2], (string)reader[3]); 
-                 stationInfos.Add(info);
-            }
+            //     StationInfo info = new StationInfo((int)reader[0], (string)reader[1], (string)reader[2], (string)reader[3]); 
+            //     stationInfos.Add(info);
+            //}
             return Ok(stationInfos);
         }
        
         [HttpGet("Sessions/GetScheduleForTheDay")]
         public async Task<ActionResult<List<ScheduledClass>>> GetScheduleForTheDay()
         {
-            var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", DateTime.UtcNow));
-            return Ok(await GetClassesFromReader(reader));
+            return Ok();
+            //var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", DateTime.UtcNow));
+         //   return Ok(await Helper.GetClassesFromReader(reader));
         }
         //GET THE CURRENT SCHEDULE OF STUDENTS status, station, time and instructtor
         //FORMAT : {STUDENT ID, TIMSLOT ID, STATION ID, INSTRUCTORS IDs, STUDENT STATUS, DATETIME
@@ -109,13 +115,13 @@ namespace AttendanceWebAPI.Controllers
         {
             
             var reader = await Helper.CallReader("GetCurrentSessions");
-            var sessions = await GetClassesFromReader(reader);
+          //  var sessions = await GetClassesFromReader(reader);
             List<ScheduledClass> mockData = new List<ScheduledClass>()
             {
                 new ScheduledClass(1, 1, 1, 1, new List<int>(){ 1,2 }, StudentStatus.Present, new DateTime(2023, 2, 19)),
 
             };
-            return Ok(sessions);
+            return Ok(mockData);
         }
 
         //CHECK IF SCHEDULE SHOULD BE UPDATED
@@ -156,13 +162,12 @@ namespace AttendanceWebAPI.Controllers
             
             var reader = await Helper.CallReader("SwapSession", new SqlParameter("@OldSessionID", body.OldSessionID), new SqlParameter("@NewSessionID", body.NewSessionID),
                 new SqlParameter("@InstructorID", body.InstructorID), new SqlParameter("@ReplacementID", body.ReplacementID));
-            await reader.ReadAsync();
-
-            if ((int)reader[0] == - 1)
+            
+            if ((int)reader.Rows[0][0] == - 1)
             {
                 return NotFound();
             }
-            return Ok((int)reader[0]);
+            return Ok((int)reader.Rows[0][0]);
         }
 
         //Update the classes instructor 
@@ -225,7 +230,7 @@ namespace AttendanceWebAPI.Controllers
 
             var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", start), new SqlParameter("@EndDate", end), new SqlParameter("@StudentID", studentID));
 
-            var classes = await GetClassesFromReader(reader);
+            var classes = await Helper.GetClassesFromReader(reader);
             return Ok(classes);
         }
     }
