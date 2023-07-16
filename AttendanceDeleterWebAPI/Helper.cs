@@ -27,10 +27,22 @@ namespace Test_2
             cmd.Parameters.AddRange(parameters);
 
             await Communicator.sqlConnection.OpenAsync();
+            if (Communicator.sqlConnection.State  != ConnectionState.Open)
+            {
+                ;
+            }
 
             SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-            adapter.Fill(dataTable);
 
+            try
+            {
+                adapter.Fill(dataTable);
+
+            }
+            catch (SqlException sqlEx)
+            {
+                throw;
+            }
             await Communicator.sqlConnection.CloseAsync();
             adapter.Dispose();
 
@@ -67,7 +79,8 @@ namespace Test_2
             foreach(DataRow rows in reader.Rows)
             {
                 int sessionID = (int)rows[0];
-                var classReader = await CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var classReaderTask = CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var classReader = await classReaderTask;
                 var instructorReader = await CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
                 List<int> instructors = new List<int>();
                 foreach(DataRow row in instructorReader.Rows)
@@ -77,7 +90,7 @@ namespace Test_2
                 ScheduledClass? temp = null;
                 foreach(DataRow classRow in classReader.Rows)
                 {
-                    var returnReader = await Helper.CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classRow[0]));
+                    var returnReader = await CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classRow[0]));
 
                     temp = new ScheduledClass(sessionID, (int)classRow[0], (int)classRow[1], (int)classRow[2], instructors, (StudentStatus)(int)returnReader.Rows[0][0], (DateTime)classRow[5]);
                 }

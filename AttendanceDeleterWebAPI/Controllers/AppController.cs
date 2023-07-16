@@ -27,7 +27,7 @@ namespace AttendanceWebAPI.Controllers
     {
         //Getting timeSlot info
         //Test Data currently, will e getting it from Stan magic
-        [HttpGet("Session/GetTimeslotInfos")]
+        [HttpGet("GetTimeslotInfos")]
         public ActionResult<List<Timeslot>> GetTimeslotInfos()
         {
             List<Timeslot> mockData = new List<Timeslot>()
@@ -43,7 +43,7 @@ namespace AttendanceWebAPI.Controllers
 
         //Test data for student info, should ping STAN or API
         //MOCK DATA
-        [HttpGet("Session/GetStudentInfos")]
+        [HttpGet("GetStudentInfos")]
         public ActionResult<List<Student>> GetStudentInfos()
         {
             List<Student> mockData = new List<Student>()
@@ -60,7 +60,7 @@ namespace AttendanceWebAPI.Controllers
 
         //TEST DATA FOR INSTRUCTORS
         //NEEDS TO GET FROM SQL OR STAN
-        [HttpGet("Session/GetInstructorInfos")]
+        [HttpGet("GetInstructorInfos")]
         public async Task<ActionResult<List<int>>> GetInstructorInfos()
         {
             //List<Instructor> mockData = new List<Instructor>()
@@ -80,7 +80,7 @@ namespace AttendanceWebAPI.Controllers
         }
         //GET INFO OF STATIONS
         //MOCK DATA
-        [HttpGet("Session/GetStationInfos")]
+        [HttpGet("GetStationInfos")]
         public async Task<ActionResult<List<StationInfo>>> GetStationInfos()
         {
             List<StationInfo> mockData = new List<StationInfo>()
@@ -101,12 +101,15 @@ namespace AttendanceWebAPI.Controllers
             return Ok(stationInfos);
         }
        
-        [HttpGet("Sessions/GetScheduleForTheDay")]
+        [HttpGet("GetScheduleForTheDay")]
         public async Task<ActionResult<List<ScheduledClass>>> GetScheduleForTheDay()
         {
-            return Ok();
-            //var reader = await Helper.CallReader("GetSessions", new SqlParameter("@StartDate", DateTime.UtcNow));
-         //   return Ok(await Helper.GetClassesFromReader(reader));
+
+            DateTime temp = new DateTime(2023, 6, 25);
+            var readerTask = Helper.CallReader("GetSessions", new SqlParameter("@StartDate", temp));
+            var reader = await readerTask;
+            var task = Helper.GetClassesFromReader(reader);
+            return Ok(await task);
         }
         //GET THE CURRENT SCHEDULE OF STUDENTS status, station, time and instructtor
         //FORMAT : {STUDENT ID, TIMSLOT ID, STATION ID, INSTRUCTORS IDs, STUDENT STATUS, DATETIME

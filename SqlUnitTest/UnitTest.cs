@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using Test_2;
+using Test_2.ScheduleSetup;
 
 namespace SqlUnitTest
 {
@@ -22,11 +23,23 @@ namespace SqlUnitTest
         {
             HttpClient client = new HttpClient();
             client.BaseAddress = baseAddress;
-           
-            var message = await GetAsync(client, client.BaseAddress + "App/Session/GetInstructorInfos");
+
+            var message = await GetAsync(client, client.BaseAddress + "App/GetInstructorInfos");
             var content = message.Content;
             var instructorIDs = await content.ReadAsAsync<List<int>>();
             Assert.True(instructorIDs.Count == 2);
+        }
+        [Fact]
+        public async void GetCurrentSession()
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = baseAddress;
+
+            var message = await GetAsync(client, client.BaseAddress + "App/GetScheduleForTheDay");
+            var content = message.Content;
+            var instructorIDs = await content.ReadAsAsync<List<ScheduledClass>>();
+            ;
+
         }
     }
 }
