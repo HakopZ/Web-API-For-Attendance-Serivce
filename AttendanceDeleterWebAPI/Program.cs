@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Data.SqlClient;
+using Test_2;
 
 namespace AttendanceWebAPI
 {
@@ -72,13 +74,15 @@ namespace AttendanceWebAPI
                     ValidAudience = "MonitorApp",
                     IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
-
-
             });
-            //builder.Services.Addauthorization(options =>
-            //{
-            //    options.fallbackpolicy = options.defaultpolicy;
-            //});
+            builder.Services.AddScoped(factory =>
+            {
+                return new SqlConnection(Communicator.connectionString);
+            });
+            builder.Services.AddScoped(factory =>
+            {
+                return new HttpClient() { BaseAddress = Communicator.baseAddress };
+            })
               
             builder.Services.AddAuthorization();
             

@@ -9,25 +9,25 @@ namespace Test_2
     {
         //might need try catch if not connected to sql 
         //store in queue if offline??
-        public static async Task CallStoredProcedure(string procedureName, params SqlParameter[] parameters)
+        public static async Task CallStoredProcedure(string procedureName, SqlConnection connection, params SqlParameter[] parameters)
         {
-            await Communicator.sqlConnection.OpenAsync();
-            SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
+            await connection.OpenAsync();
+            SqlCommand cmd = new SqlCommand(procedureName, connection);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddRange(parameters);
             await cmd.ExecuteNonQueryAsync();
-            await Communicator.sqlConnection.CloseAsync();
+            await connection.CloseAsync();
         }
 
-        public static async Task<DataTable> CallReader(string procedureName, params SqlParameter[] parameters)
+        public static async Task<DataTable> CallReader(string procedureName, SqlConnection connection, params SqlParameter[] parameters)
         {
-            SqlCommand cmd = new SqlCommand(procedureName, Communicator.sqlConnection);
+            SqlCommand cmd = new SqlCommand(procedureName, connection);
             DataTable dataTable = new DataTable();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddRange(parameters);
 
-            await Communicator.sqlConnection.OpenAsync();
-            if (Communicator.sqlConnection.State  != ConnectionState.Open)
+            await connection.OpenAsync();
+            if (connection.State  != ConnectionState.Open)
             {
                 ;
             }
@@ -43,16 +43,16 @@ namespace Test_2
             {
                 throw;
             }
-            await Communicator.sqlConnection.CloseAsync();
+            await connection.CloseAsync();
             adapter.Dispose();
 
             return dataTable;
         }
 
-        public static async Task<T> CallGetAPI<T>(string address)
+        public static async Task<T> CallGetAPI<T>(HttpClient client, string address)
         {
             HttpResponseMessage httpResponse;
-            httpResponse = await Communicator.client.GetAsync(address);
+            httpResponse = await client.GetAsync(address);
             httpResponse.EnsureSuccessStatusCode();
             return await httpResponse.Content.ReadAsAsync<T>();
         }
@@ -71,7 +71,7 @@ namespace Test_2
             }
             return timeslots;
         }
-        public static async Task<List<ScheduledClass>> GetClassesFromReader(DataTable reader)
+        public static async Task<List<ScheduledClass>> GetClassesFromReader(DataTable reader, SqlConnection connection)
         {
             List<ScheduledClass> sessions = new List<ScheduledClass>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
@@ -79,9 +79,9 @@ namespace Test_2
             foreach(DataRow rows in reader.Rows)
             {
                 int sessionID = (int)rows[0];
-                var classReaderTask = CallReader("GetClassInfo", new SqlParameter("@SessionID", sessionID));
+                var classReaderTask = CallReader("GetClassInfo", connection, new SqlParameter("@SessionID", sessionID));
                 var classReader = await classReaderTask;
-                var instructorReader = await CallReader("GetInstructorInfo", new SqlParameter("@SessionID", sessionID));
+                var instructorReader = await CallReader("GetInstructorInfo", connection, new SqlParameter("@SessionID", sessionID));
                 List<int> instructors = new List<int>();
                 foreach(DataRow row in instructorReader.Rows)
                 {
@@ -90,7 +90,7 @@ namespace Test_2
                 ScheduledClass? temp = null;
                 foreach(DataRow classRow in classReader.Rows)
                 {
-                    var returnReader = await CallReader("IsStudentAttending", new SqlParameter("@StudentID", (int)classRow[0]));
+                    var returnReader = await CallReader("IsStudentAttending", connection, new SqlParameter("@StudentID", (int)classRow[0]));
 
                     temp = new ScheduledClass(sessionID, (int)classRow[0], (int)classRow[1], (int)classRow[2], instructors, (StudentStatus)(int)returnReader.Rows[0][0], (DateTime)classRow[5]);
                 }

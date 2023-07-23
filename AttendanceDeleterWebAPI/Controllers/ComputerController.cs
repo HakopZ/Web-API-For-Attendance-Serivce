@@ -29,10 +29,14 @@ namespace AttendanceWebAPI.Controllers
         //Dictionary<string, int> stationLoggedInCount = new Dictionary<string, int>();
         //public static ILogger<string> eventLog = new Logger<string>(new LoggerFactory());
         //might be a post call discuss later
-        
+        private SqlConnection sqlConnection;
+        public ComputerController(SqlConnection connection)
+        {
+            sqlConnection = connection;
+        }
 
         [HttpGet("Test")]
-        public async Task<IActionResult> Test()
+        public IActionResult Test()
         {
 
             // var check = Security.IsInGroup(User, "Admin");//--
@@ -68,16 +72,16 @@ namespace AttendanceWebAPI.Controllers
 
             //Calling stored procedure sign in 
 
-            var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", enterInfo.StationName));
+            var stationVal = await Helper.CallReader("GetStationID", sqlConnection, new SqlParameter("@Name", enterInfo.StationName));
             
             int stationId = (int)stationVal.Rows[0][0];
-            var rVal = await Helper.CallReader("IsStudentScheduled", new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]));
+            var rVal = await Helper.CallReader("IsStudentScheduled", sqlConnection, new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]));
             
             if ((int)rVal.Rows[0][0] == 0)
             {
                 Communicator.eventMessages.Enqueue(new EventMessage(enterInfo.StationName, $"Student: {enterInfo.AccountName} has signed in at {enterInfo.StationName} is not scheduled", TimeOnly.FromDateTime(DateTime.Now)));
             }
-            var r = await Helper.CallReader("Sign In", new SqlParameter("@StationID", stationId), new SqlParameter("@IsManual", false), new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]), 
+            var r = await Helper.CallReader("Sign In", sqlConnection, new SqlParameter("@StationID", stationId), new SqlParameter("@IsManual", false), new SqlParameter("@StudentID", Communicator.StudentMap[enterInfo.AccountName]), 
                 new SqlParameter("@Date", enterInfo.TimeOfRecord));
             
             //Check if there is a double log in 
@@ -97,16 +101,16 @@ namespace AttendanceWebAPI.Controllers
             //eventLog.LogInformation("Log Off When There wasn't a log in", (exitInfo.StationID));
 
             //If there is a late submission of data
-            var stationVal = await Helper.CallReader("GetStationID", new SqlParameter("@Name", exitInfo.StationName));
+            var stationVal = await Helper.CallReader("GetStationID", sqlConnection, new SqlParameter("@Name", exitInfo.StationName));
           
             int stationId = (int)stationVal.Rows[0][0];
             if (exitInfo.TimeOfRecord == null)
             {
-                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", stationId), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
+                await Helper.CallStoredProcedure("SignOut", sqlConnection, new SqlParameter("@StationID", stationId), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
             }
             else
             {
-                await Helper.CallStoredProcedure("SignOut", new SqlParameter("@StationID", stationId), new SqlParameter("@Date", exitInfo.TimeOfRecord), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
+                await Helper.CallStoredProcedure("SignOut", sqlConnection, new SqlParameter("@StationID", stationId), new SqlParameter("@Date", exitInfo.TimeOfRecord), new SqlParameter("@StudentID", Communicator.StudentMap[exitInfo.AccountName]));
             }
             Communicator.SessionUpdate = true;
             return Ok();

@@ -24,6 +24,7 @@ namespace Test_2.Controllers
             throw new System.Web.Http.HttpResponseException(System.Net.HttpStatusCode.Unauthorized);
         }
 
+        //This does not work currently
         private bool CheckUser(string username, string password)
         {
             if(username.ToLower() == "gmr" && password == "GreatMinds217")
