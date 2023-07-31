@@ -45,6 +45,8 @@ namespace AttendanceWebAPI.Controllers
                 new Timeslot(2, new DateTime(2023, 1, 21, 0, 15, 0), new DateTime(2023, 1, 21, 1, 30, 0)),
                 new Timeslot(3, new DateTime(2023, 1, 21, 1, 45, 0), new DateTime(2023, 1, 21, 4, 15, 0))
             };
+
+            //NOT A THING YET
             List<Timeslot> timeslots = await Helper.CallGetAPI<List<Timeslot>>(httpClient, httpClient.BaseAddress + "MakeTimeSlots");
             return Ok(timeslots);
         }
@@ -69,7 +71,7 @@ namespace AttendanceWebAPI.Controllers
         //TEST DATA FOR INSTRUCTORS
         //NEEDS TO GET FROM SQL OR STAN
         [HttpGet("GetInstructorInfos")]
-        public async Task<ActionResult<List<int>>> GetInstructorInfos()
+        public async Task<ActionResult<List<Instructor>>> GetInstructorInfos()
         {
             //List<Instructor> mockData = new List<Instructor>()
             //{
@@ -84,7 +86,10 @@ namespace AttendanceWebAPI.Controllers
             {
                 ids.Add((int)row["InstructorID"]);
             }
-            return Ok(ids);
+
+            var ls = await Helper.CallGetAPI<List<Instructor>>(httpClient, "GetAllInstructors");
+            
+            return Ok(ls.Where(x => ids.Contains(x.ID)).ToList());
         }
 
         //GET INFO OF STATIONS

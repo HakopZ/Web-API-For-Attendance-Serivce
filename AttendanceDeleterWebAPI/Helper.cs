@@ -27,22 +27,16 @@ namespace Test_2
             cmd.Parameters.AddRange(parameters);
 
             await connection.OpenAsync();
-            if (connection.State  != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
                 ;
             }
 
             SqlDataAdapter adapter = new SqlDataAdapter(cmd);
 
-            try
-            {
-                adapter.Fill(dataTable);
 
-            }
-            catch (SqlException sqlEx)
-            {
-                throw;
-            }
+            adapter.Fill(dataTable);
+
             await connection.CloseAsync();
             adapter.Dispose();
 
@@ -56,15 +50,15 @@ namespace Test_2
             httpResponse.EnsureSuccessStatusCode();
             return await httpResponse.Content.ReadAsAsync<T>();
         }
-        
+
 
         //might not be needed
         public static List<int> ToTimeslot(this DateTime time)
         {
             List<int> timeslots = new List<int>();
-            foreach(var pairs in Communicator.timeslotMap)
+            foreach (var pairs in Communicator.timeslotMap)
             {
-                if(pairs.Start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.End.TimeOfDay)
+                if (pairs.Start.TimeOfDay < time.TimeOfDay && time.TimeOfDay < pairs.End.TimeOfDay)
                 {
                     timeslots.Add(pairs.ID);
                 }
@@ -75,20 +69,20 @@ namespace Test_2
         {
             List<ScheduledClass> sessions = new List<ScheduledClass>();
             //THIS DOES NOT WORK NEED TO FIGURE OUT INSTRUCTOR IDS
-            
-            foreach(DataRow rows in reader.Rows)
+
+            foreach (DataRow rows in reader.Rows)
             {
                 int sessionID = (int)rows[0];
                 var classReaderTask = CallReader("GetClassInfo", connection, new SqlParameter("@SessionID", sessionID));
                 var classReader = await classReaderTask;
                 var instructorReader = await CallReader("GetInstructorInfo", connection, new SqlParameter("@SessionID", sessionID));
                 List<int> instructors = new List<int>();
-                foreach(DataRow row in instructorReader.Rows)
+                foreach (DataRow row in instructorReader.Rows)
                 {
                     instructors.Add((int)row[0]);
                 }
                 ScheduledClass? temp = null;
-                foreach(DataRow classRow in classReader.Rows)
+                foreach (DataRow classRow in classReader.Rows)
                 {
                     var returnReader = await CallReader("IsStudentAttending", connection, new SqlParameter("@StudentID", (int)classRow[0]));
 

@@ -8,7 +8,9 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://0.0.0.0:5247"
+      "windowsAuthentication": true,
+      "applicationUrl": "http://localhost:5247",
+      "sqlDebugging": true
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -18,16 +20,15 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true
-    },
-    
+    }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": true,
-    "anonymousAuthentication": true,
+    "anonymousAuthentication": false,
     "iisExpress": {
-      "applicationUrl": "http://0.0.0.0:5247",
-      "sslPort": 44381
+      "applicationUrl": "http://localhost:5247",
+      "sslPort": 44374
     }
   }
 }

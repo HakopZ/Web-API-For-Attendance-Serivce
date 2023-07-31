@@ -49,7 +49,7 @@ namespace TestWebAPIWithConsole
         static HttpClient client;
 
 
-        static string baseAddress = "http://gmr-124-2-1:5247/";
+        static string baseAddress = "http://localhost:5247/";
 
         static async Task<WeatherForecast> SendWeather(WeatherForecast weather)
         {
@@ -78,14 +78,15 @@ namespace TestWebAPIWithConsole
             //var credentialCache = new CredentialCache() { { new Uri(baseAddress + "Computer/Test"), "Negotiate", credential} };
             HttpClientHandler handler = new HttpClientHandler()
             {
-                //UseDefaultCredentials = true
+                UseDefaultCredentials = true,
                 Credentials = CredentialCache.DefaultCredentials
             };
+            handler.PreAuthenticate = true;
+            
             client = new HttpClient(handler);
             client.BaseAddress = new Uri(baseAddress);
-            client.DefaultRequestHeaders.Accept.Clear();
 
-            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Negotiate");
+          //  client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Negotiate");
             //            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var response = await GetAsync(client, "Computer/Test");

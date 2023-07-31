@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using Test_2;
 
 namespace AttendanceWebAPI
@@ -62,7 +64,7 @@ namespace AttendanceWebAPI
 
             builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
 
-            builder.Services.AddAuthentication().AddJwtBearer(options =>
+          /*  builder.Services.AddAuthentication().AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -74,7 +76,7 @@ namespace AttendanceWebAPI
                     ValidAudience = "MonitorApp",
                     IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(JwtManager.Secret))
                 };
-            });
+            });*/
             builder.Services.AddScoped(factory =>
             {
                 return new SqlConnection(Communicator.connectionString);
@@ -82,13 +84,14 @@ namespace AttendanceWebAPI
             builder.Services.AddScoped(factory =>
             {
                 return new HttpClient() { BaseAddress = Communicator.baseAddress };
-            })
+            });
               
-            builder.Services.AddAuthorization();
-            
+            builder.Services.AddAuthorization(x=>
+            {
+                x.FallbackPolicy = x.DefaultPolicy;
+            });
             
             var app = builder.Build();
-
             
             if (app.Environment.IsDevelopment())
             {

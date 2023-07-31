@@ -22,7 +22,7 @@ namespace AttendanceWebAPI.Controllers
     [ApiController]
     [Route("[controller]")]
     [EnableCors("AppPolicy")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = NegotiateDefaults.AuthenticationScheme)]
     public class ComputerController : ControllerBase
     {
         //Not sure we get classID or if we have to figure it out
@@ -44,10 +44,10 @@ namespace AttendanceWebAPI.Controllers
             //var l = Request.HttpContext.Connection.RemoteIpAddress;
 
             //IPHostEntry host = Dns.GetHostEntry(l);
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            var identity = HttpContext.User.Identity;
 
             // Check if the user identity is authenticated
-            if (identity != null && identity.IsAuthenticated)
+            /*if (identity != null && identity.IsAuthenticated)
             {
                 // Retrieve the user's name
                 var userName = identity.Name;
@@ -58,7 +58,7 @@ namespace AttendanceWebAPI.Controllers
 
                 // Return the user identity information
              //   return $"User Name: {userName}, Email: {userEmail}";
-            }
+            }*/
 
             return Ok("BOB");
         }
