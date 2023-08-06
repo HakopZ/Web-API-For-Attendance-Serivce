@@ -9,7 +9,7 @@
       },
       "dotnetRunMessages": true,
       "windowsAuthentication": true,
-      "applicationUrl": "http://localhost:5247",
+      "applicationUrl": "http://gmr-124-2-1:5247",
       "sqlDebugging": true
     },
     "IIS Express": {
